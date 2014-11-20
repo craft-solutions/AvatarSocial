@@ -13,10 +13,20 @@
     <description></description>
     <display-name>StreamerServlet</display-name>
     <servlet-name>StreamerServlet</servlet-name>
-    <servlet-class>com.craft.anje.avatarsocial.StreamerServlet</servlet-class>
+    <servlet-class>com.craft.anje.avatarsocial.servlets.StreamerServlet</servlet-class>
   </servlet>
   <servlet-mapping>
     <servlet-name>StreamerServlet</servlet-name>
     <url-pattern>/avatar_video_streamer</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <description></description>
+    <display-name>CamUpdateServlet</display-name>
+    <servlet-name>CamUpdateServlet</servlet-name>
+    <servlet-class>com.craft.anje.avatarsocial.servlets.CamUpdateServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>CamUpdateServlet</servlet-name>
+    <url-pattern>/cam_update</url-pattern>
   </servlet-mapping>
 </web-app>
