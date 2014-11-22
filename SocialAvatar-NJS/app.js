@@ -10,7 +10,9 @@ var express = require('express')
   , http = require('http')
   , path = require('path')
   , mod_panic = require('panic')
-  , stringify = require('json-stringify-safe');
+  , stringify = require('json-stringify-safe')
+  , path = require('path-extra')
+  , awscfg = require ('./AWSHelper');
 
 console.log ('*********************************************');
 console.log ('  AVATAR SOCIAL MIDDLEWARE SERVER 1.0');
@@ -42,16 +44,16 @@ GLOBAL.isDebugEnable = true;
 GLOBAL.workers = [];
 GLOBAL.RC = require ('./FaultCodes');
 
-console.log ('Initializing Avatar Control class');
-// The Avatar control
-GLOBAL.avatarmodel = require ('./AvatarControl').newInstance ();
-
 // AUXILIARY GLOBAL FUNCTIONS
 /*
  * Gets the user home directory
  */
 GLOBAL.getUserHome = function () {
-  return process.env.HOME || process.env.HOMEPATH || process.env.USERPROFILE;
+	var homeDir = path.homedir () || '/Users/jbrios';
+	
+	console.log ('Using home directory: '+homeDir);
+	
+	return homeDir;
 };
 /*
  * Gets Avatar base dir
@@ -59,6 +61,12 @@ GLOBAL.getUserHome = function () {
 GLOBAL.getAvatarBaseDir = function () {
   return getUserHome () + '/avatar';
 };
+
+console.log ('Initializing Avatar Control class');
+//The Avatar control
+GLOBAL.avatarmodel = require ('./AvatarControl').init ();
+// AWS configuration
+GLOBAL.awscfg = awscfg.newInstance ();
 
 /////////////////////////////////////////////////////////////
 console.log  ('Branch type is: '+ app.get('env'));
