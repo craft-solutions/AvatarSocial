@@ -13,19 +13,23 @@
 <body>
 <div id="maskit"></div>
 
-<center>
-<video autoplay="autoplay" width="800" height="600">
-	<source src="http://localhost:8080/AvatarSocial//avatar_video_streamer"></source>
-</video>
-</center>
+<!-- <center>
+<video autoplay="autoplay" width="800" height="600" id="captureCam"/>
+</center> -->
 
 
 <!-- Latest compiled and minified Bootstrap JavaScript -->
 <script src="//code.jquery.com/jquery-2.1.1.min.js"></script>
 <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+<script src="https://cdn.webrtc-experiment.com/MediaStreamRecorder.js" 
+		data-require="WhammyRecorder,MediaRecorder" 
+		data-scripts-dir="https://cdn.webrtc-experiment.com/msr/"></script>
+<script src="http://underscorejs.org/underscore-min.js"></script>
 
 <!-- Common libraries -->
 <script type="text/javascript" src="js/countdown.min.js"></script>
+<script type="text/javascript" src="js/global.js"></script>
+<script type="text/javascript" src="js/webcam.js"></script>
 <script type="text/javascript" src="js/main.js"></script>
 
 </body>

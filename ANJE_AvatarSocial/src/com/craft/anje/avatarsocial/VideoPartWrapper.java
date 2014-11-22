@@ -32,13 +32,13 @@ public class VideoPartWrapper implements Serializable {
 	 * @param b	The file bytes
 	 * @param index	The file index to be used
 	 */
-	public VideoPartWrapper(byte[] b, int index) {
+	public VideoPartWrapper(byte[] b, int index, String ext) {
 		setData(b);
-		setFileName(index+".part");
+		setFileName(index+"."+ext);
 		setContentType("");
 	}
-	public VideoPartWrapper(int index) {
-		this(null, index);
+	public VideoPartWrapper(int index, String ext) {
+		this(null, index, ext);
 	}
 	
 	/**

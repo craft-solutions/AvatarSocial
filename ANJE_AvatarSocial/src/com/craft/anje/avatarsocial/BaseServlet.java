@@ -40,6 +40,7 @@ public abstract class BaseServlet extends HttpServlet {
 	
 	private final String X_CRAFT_NMI = "X-Craft-NMI";
 	private final String X_CRAFT_RC = "X-Craft-RC";
+	private final String X_CRAFT_RCMSG = "X-Craft-RCMessage";
 	private final String X_CRAFT_ACTION = "X-Craft-Action";
 	private final String X_CRAFT_ACTION_RESULT = "X-Craft-ActionResult";
 
@@ -66,7 +67,7 @@ public abstract class BaseServlet extends HttpServlet {
 	 */
 	protected File getBaseDirectory () throws IOException {
 		// Creates the solution Directory
-		File soldir = new File(FileUtils.getUserDirectory(), ".craft");
+		File soldir = new File(FileUtils.getUserDirectory(), "craft");
 		if (!soldir.exists() || soldir.isFile()) {
 			soldir.mkdir();
 		}
@@ -119,7 +120,7 @@ public abstract class BaseServlet extends HttpServlet {
 		if (!configFile.exists() || configFile.isDirectory()) {
 			configFile.createNewFile();
 			
-			InputStream in = getClass ().getResourceAsStream("baseConfig.properties");
+			InputStream in = getClass ().getResourceAsStream("/configurations.properties");
 			FileUtils.copyInputStreamToFile(in, configFile);
 			
 			// Loads the configurations
@@ -127,7 +128,7 @@ public abstract class BaseServlet extends HttpServlet {
 			
 			lastTimestampMillis = System.currentTimeMillis();
 		}
-		else if ( (System.currentTimeMillis()-lastTimestampMillis) > (1000*60*60/*1 hour*/)) {
+		else {//if ( (System.currentTimeMillis()-lastTimestampMillis) > (1000*60*60/*1 hour*/)) {
 			FileInputStream fin = new FileInputStream(configFile);
 			
 			// Loads the configurations
@@ -147,39 +148,49 @@ public abstract class BaseServlet extends HttpServlet {
 	 * @throws IOException
 	 */
 	abstract protected void execute (HttpServletRequest request, HttpServletResponse response) throws AvatarException, IOException;
+	/**
+	 * Identifies if the implementing servlet should use a get method
+	 * @return	True if it can use GET, false otherwise
+	 */
+	abstract protected boolean canUseGET ();
 	
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws AvatarException, IOException {
 		HttpSession session = request.getSession();
-		// Gets the token
-		int token = getAccessTokenNMI(session);
-		
-		int givenToken = request.getIntHeader(X_CRAFT_NMI);
-		
-		if ( (token % givenToken) != 0 ) {
-			response.setIntHeader(X_CRAFT_RC, IRC.ERR_SECURITY);
-			throw new AvatarException("Internal Server validation error", IRC.ERR_SECURITY);
-		}
-		// Okay, continue processing
-		else {
-			try {
+		try {
+			// Gets the token
+			int token = getAccessTokenNMI(session);
+			
+			int givenToken = request.getIntHeader(X_CRAFT_NMI);
+			
+//			System.out.format("Given Token [%d] === SESSION TOKEN [%d]\n", givenToken, token);
+			if ( givenToken == -17 ) {
+				throw new AvatarException("Needs new token", IRC.ERR_NEWTOKEN);
+			}
+			else if ( (token % givenToken) != 0 ) {
+				response.setIntHeader(X_CRAFT_RC, IRC.ERR_SECURITY);
+				throw new AvatarException("Internal Server validation error", IRC.ERR_SECURITY);
+			}
+			// Okay, continue processing
+			else {
 				this.execute(request, response);
 				
 				// Okay, no error has happen
 				response.setIntHeader(X_CRAFT_RC, IRC.ERR_NONE);
+				
 			}
-			catch (Exception ex) {
-				if ( ex instanceof AvatarException ) {
-					AvatarException aex = (AvatarException) ex;
-					response.setIntHeader(X_CRAFT_RC, aex.getRC());
-					throw aex;
-				}
-				else {
-					response.setIntHeader(X_CRAFT_RC, IRC.ERR_UNKNOWN);
-					throw new AvatarException(ex, IRC.ERR_UNKNOWN);
-				}
+		}
+		catch (Throwable t) {
+			if ( t instanceof AvatarException ) {
+				AvatarException aex = (AvatarException) t;
+				response.setIntHeader(X_CRAFT_RC, aex.getRC());
+				response.setHeader(X_CRAFT_RCMSG, t.getMessage()!=null?t.getMessage():"No information");
+			}
+			else {
+				response.setIntHeader(X_CRAFT_RC, IRC.ERR_UNKNOWN);
+				response.setHeader(X_CRAFT_RCMSG, t.getMessage()!=null?t.getMessage():"No information");
 			}
 		}
 	}
@@ -197,6 +208,22 @@ public abstract class BaseServlet extends HttpServlet {
 			// Define the header with the token value
 			response.setIntHeader(X_CRAFT_ACTION_RESULT, number);
 			response.setIntHeader(X_CRAFT_RC, IRC.ERR_NONE);
+		}
+		else if (canUseGET()) {
+			try {
+				this.execute (request, response);
+			}
+			catch (Throwable t) {
+				if ( t instanceof AvatarException ) {
+					AvatarException aex = (AvatarException) t;
+					response.setIntHeader(X_CRAFT_RC, aex.getRC());
+					response.setHeader(X_CRAFT_RCMSG, t.getMessage()!=null?t.getMessage():"No information");
+				}
+				else {
+					response.setIntHeader(X_CRAFT_RC, IRC.ERR_UNKNOWN);
+					response.setHeader(X_CRAFT_RCMSG, t.getMessage()!=null?t.getMessage():"No information");
+				}
+			}
 		}
 		else {
 			// Just write a forbidden message to the client
