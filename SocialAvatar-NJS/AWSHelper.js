@@ -102,16 +102,23 @@ AWSHelper.prototype.receiveAdamRequestFromQ = function (cb) {
 /*
  * Receives a message from the given Queue
  */
-AWSHelper.prototype.receiveRequestFromQ = function (queueUrl, cb, removeIf) {
+AWSHelper.prototype.receiveRequestFromQ = function (queueUrl, cb, removeIf, bcount) {
 	var me = this;
+	var batchCount = bcount || 1;
+	
 	
 	// Define the receive AWS parameters
 	var params = {
 		QueueUrl: queueUrl,
-		MaxNumberOfMessages: 1,
+		MaxNumberOfMessages: batchCount,
 		VisibilityTimeout: 1,
 		WaitTimeSeconds: 1,// Lets at least wait 1 second, it doesn't cost	
 	};
+	
+	if (isDebugEnable) {
+		console.log ('Parameters used to retrieve message from AWS SQS:');
+		console.log (params);
+	}
 	
 	// Let's get the message
 	me.getSQS ().receiveMessage(params, function(err, data) {
@@ -126,20 +133,148 @@ AWSHelper.prototype.receiveRequestFromQ = function (queueUrl, cb, removeIf) {
 			}
 			
 			if (data && data.Messages && data.Messages.length > 0 ) {
-				var message = data.Messages [0];
-				
-				if (removeIf) {
-					me.removeMsgFromQ(message, queueUrl);
+				if (bcount) {
+					var users = new Array ();
+					// Iter all the messages before returning
+					var n=0, sent = false;
+					for (;n<data.Messages.length;n++) {
+						var currmsg = data.Messages [n];
+						
+						if (removeIf) {
+							me.removeMsgFromQ(currmsg, queueUrl);
+						}
+						
+						try {
+							var user = JSON.parse (currmsg.Body);
+							user.receiptHandle = currmsg.ReceiptHandle;
+							// Adds the user to the array
+							users.push(user);
+						}
+						catch (e) {
+							console.error (e);
+							if (cb) {
+								cb (e);
+								sent = true;
+							}
+							break;
+						}
+					}
+					// Return the users
+					if (cb && !sent) cb (null, users);
 				}
-				
-				var user = JSON.parse (message.Body)
-				user.receiptHandle = message.ReceiptHandle;
-				// Returns the object
-				cb (null, user);
+				else {
+					var message = data.Messages [0];
+					
+					if (removeIf) {
+						me.removeMsgFromQ(message, queueUrl);
+					}
+					
+					try {
+						var user = JSON.parse (message.Body);
+						user.receiptHandle = message.ReceiptHandle;
+						// Returns the object
+						cb (null, user);
+					}
+					catch (e) {
+						if (cb) cb (e);
+					}
+				}
 			}
 			else if (cb) cb ();
 		}
 	});
+};
+
+/*
+ * Removes the user from the Adam queue.
+ */
+AWSHelper.prototype.removeUserFromAdamQ = function (user, cb) {
+	var me = this;
+	var adamConfig = help.GetAdamConfig ();
+	
+	if (user) {
+		me.removeUserFromQ (user, adamConfig.queueName, cb);
+	}
+	else {	
+		if (cb) {
+			cb ({message : 'An user must be specified',});
+		}
+	}
+};
+/*
+ * Removes the user from Eve queue
+ */
+AWSHelper.prototype.removeUserFromEveQ = function (user, cb) {
+	var me = this;
+	var eveConfig = help.GetEveConfig ();
+	
+	if (user) {
+		me.removeUserFromQ (user, eveConfig.queueName, cb);
+	}
+	else {	
+		if (cb) {
+			cb ({message : 'An user must be specified',});
+		}
+	}
+};
+/*
+ * Removes a specific user from the batch count in the queue
+ */
+AWSHelper.prototype.removeUserFromQ = function (user, queueUrl, cb) {
+	var me = this;
+	
+	// Retrieves all the messages from the queue
+	me.receiveRequestFromQ(queueUrl, function (err, users) {
+		if (err) {
+			console.error(err, err.stack); // an error occurred
+			if (cb) cb (err);
+		}
+		else if (users) {
+			if (isDebugEnable) {
+				console.log ('Users register in the Avatar queue: %s', queueUrl);
+				console.log(users);
+			}
+			
+			var n = 0, end = false;
+			// Verifies the users
+			for (;n<users.length;n++) {
+				var queueuser = users [n];
+				
+				if (isDebugEnable) {
+					console.log ('QueueUserID [%s] === UserID [%s]', queueuser.id, user.id);
+				}
+				
+				if ( (end = (queueuser.id === user.id)) ) {
+					me.removeMsgFromQ(queueuser.receiptHandle, queueUrl);
+				}
+			};
+			
+			cb (null, true);
+		}
+		// No data in the queues
+		else {
+			cb (null, true);
+		}
+	}, false, 10);
+};
+
+/*
+ * Removes a message from Adam queue
+ */
+AWSHelper.prototype.removeFromAdamQ = function (handle, cb) {
+	var me = this;
+	var adamConfig = help.GetAdamConfig ();
+
+	me.removeMsgFromQ(handle, adamConfig.queueName, cb);
+};
+/*
+ * Removes a message from Eve queue
+ */
+AWSHelper.prototype.removeFromEveQ = function (handle, cb) {
+	var me = this;
+	var eveConfig = help.GetEveConfig ();
+
+	me.removeMsgFromQ(handle, eveConfig.queueName, cb);
 };
 /*
  * Removes the message from the queue
@@ -160,7 +295,7 @@ AWSHelper.prototype.removeMsgFromQ = function (handle, queueUrl, cb) {
 		}
 		else {
 			if (isDebugEnable) {
-				console.log ('Cleaning retrieved queue with ID: %s', message.MessageId);
+				console.log ('Cleaning retrieved queue with HANDLE: %s', handle);
 				console.log(data);
 			}
 			

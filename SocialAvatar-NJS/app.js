@@ -75,6 +75,12 @@ GLOBAL.avatarmodel = require ('./AvatarControl').init ();
 // AWS configuration
 GLOBAL.AWSh = awscfg.newInstance ();
 
+/*
+ * Last timestamp of the get
+ */
+GLOBAL.adamLastgetTS = new Date ();
+GLOBAL.eveLastgetTS = new Date ();
+
 /////////////////////////////////////////////////////////////
 console.log  ('Branch type is: '+ app.get('env'));
 //DEFAULT ERROR HANDLER ...
@@ -108,11 +114,17 @@ app.get('/users', user.list);
 // USER CONNECT
 app.get (NJSCTXROOT+'/auth/facebook', fbflow.fblogin);
 app.get (NJSCTXROOT+'/auth/fbme', fbflow.fbme);
+// Queue processing
 app.post (NJSCTXROOT+'/queue/countadam', queueflow.verifyAdamAvailability);
 app.post (NJSCTXROOT+'/queue/counteve', queueflow.verifyEveAvailability);
 app.post (NJSCTXROOT+'/queue/add2adam', queueflow.registerToAdamQ);
 app.post (NJSCTXROOT+'/queue/add2eve', queueflow.registerToEveQ);
-
+app.post (NJSCTXROOT+'/queue/verprceve', queueflow.proccessUserEveQ);
+app.post (NJSCTXROOT+'/queue/verprcadam', queueflow.proccessUserAdamQ);
+app.post (NJSCTXROOT+'/queue/adamlastprc', queueflow.getAdamLastTS);
+app.post (NJSCTXROOT+'/queue/evelastprc', queueflow.getEveLastTS);
+app.post (NJSCTXROOT+'/queue/adamrmusr', queueflow.removeUserFromAdamQ);
+app.post (NJSCTXROOT+'/queue/evermusr', queueflow.removeUserFromEveQ);
 
 
 

@@ -1,45 +1,65 @@
-var IS_DEBUG=true;
 /*
  * Main entry for all the API
  */
 jQuery (document).ready (function () {
+	var bootstrapButton = $.fn.button.noConflict(); // return $.fn.button to previously assigned value
+	$.fn.bootstrapBtn = bootstrapButton;            // give $().bootstrapBtn the Bootstrap functionality
+	$(document).off('.data-api');
+	
 	// Main try/catch control
 	try {
-		/*
-		 * Open Avatar control panel 
-		 */
-		var OpenAvatarControlPanel = function () {
-			var controls = document.getElementById('AvatarControls');
-			var youtubePanel = document.getElementById('YoutubePanel');
-			youtubePanel.style.display = 'none';
-			// Create the Youtube iFrame DOM element
-			var youTubeiFrame = document.createElement('iframe');
-			youTubeiFrame.setAttribute ('width', 705);
-			youTubeiFrame.setAttribute ('height', 325);
-			youTubeiFrame.setAttribute ('src', '//www.youtube.com/embed/IsgTpQAV0PE?autoplay=1&rel=0&amp;controls=0&amp;showinfo=0');
-			youTubeiFrame.setAttribute ('frameborder', 0);
-			youTubeiFrame.setAttribute ('allowfullscreen', 'allowfullscreen');
+		// Creates the Avatar control class
+		var cliavatar = new ClientAvatar();
+		
+		// Register the events to be called when Adam or Eve are available
+		cliavatar.onAdamSpot(function () { // ADAM
+			// Now lets, inform to the server that we have a spot
+			AjaxCall(NJSCTXROOT+'/queue/add2adam', {}, function (data) {
+				if (data.ack) {
+					// Okay, it's time to interrupt the execution of the Avatar controller
+					cliavatar.end();
+					
+					var disposeElement = document.getElementById('AvatarSelection');
+					var showElement	   = document.getElementById('YoutubePanel');
+					// Let's destroy this component, and open the video processing monitor
+					var control = new AvatarControl (disposeElement, showElement);
+					// Start the control and transition animation
+					control.start(AvatarType.ADAM);
+				}
+			}, ErrorCatch);
+		});
+		cliavatar.onEveSpot(function () { // EVE
+			// Now lets, inform to the server that we have a spot
+			AjaxCall(NJSCTXROOT+'/queue/add2eve', {}, function (data) {
+				if (data.ack) {
+					// Okay, it's time to interrupt the execution of the Avatar controller
+					cliavatar.end();
+					
+					var disposeElement = document.getElementById('AvatarSelection');
+					var showElement	   = document.getElementById('YoutubePanel');
+					// Let's destroy this component, and open the video processing monitor
+					var control = new AvatarControl (disposeElement, showElement);
+					// Start the control and transition animation
+					control.start(AvatarType.EVE);
+				}
+			}, ErrorCatch);
+		});
+		
+		//=================================================================================================================================
+		// Event and main function registrations ==========================================================================================
+		//=================================================================================================================================
+		// Bind the leave page event
+		$(window).on ('beforeunload', function(){
+			// Finishs the avatar
+			cliavatar.shutdown();
 			
-			// Adds the as first child
-			youtubePanel.insertBefore(youTubeiFrame, youtubePanel.childNodes [0]);
-			
-			// Closes the selection and opens the Avatars...
-			$('#AvatarSelection').fadeOut ('slow', function () {
-				$(youtubePanel).fadeIn ('slow');
-				// Opens the AVATARS!!!!
-				$('#AvatarInteraction').fadeIn ('slow', function () {
-					// TODO: Implement!
-				});
-			});
-		};
+			return 'Tem certeza que deseja sair?';
+		});
+		$(window).on ('unload', function(){
+	         // TODO:!!!
+		});
 		
 		// TODO: Implement
-		$('#Teste').click (function (e) {
-			e.stopPropagation ();
-			e.preventDefault ();
-			
-			OpenAvatarControlPanel ();
-		});
 	}
 	catch (e) {
 		console.error (e);

@@ -1,14 +1,28 @@
 var usedToken = -17;
 var usedUri;
 var usedMethod;
+var NJSCTXROOT = '/AvatarSocialNJS';
+var IS_DEBUG = false;
 
 var POST = 'POST';
 var GET = 'GET';
 
+var AJAX_DEBUG = IS_DEBUG && false;
+
+/*
+ * Load control class
+ */
+var LoadControl = {
+	/*
+	 * Control to the spot load Flag
+	 */
+	FinishLoadSpotControl : false,
+};
 /*
  * Deals with the error function
  */
 var ErrorCatch = function (e) {
+	console.error (e);
 	// TODO: Implement!
 };
 
@@ -44,7 +58,7 @@ var AjaxCall = function (touri, obj, cbSuccess, cbError, cbBeforeSend, cbAfterSe
 		crossDomain : false,
 		dataType : 'json',
 		error : function (jqXHR, txtStatus, errThrown) {
-			if (IS_DEBUG) {
+			if (AJAX_DEBUG) {
 				console.log ('Error returned from the request [URI: %s] - (text status: %s): %s', touri, txtStatus, errThrown);
 			}
 			console.error (txtStatus);
@@ -52,12 +66,12 @@ var AjaxCall = function (touri, obj, cbSuccess, cbError, cbBeforeSend, cbAfterSe
 			
 			if ( cbError ) {
 				error = true;
-				cbError (new AvatarException('Completed with an HTTP error: '+errThrown,AvatarException.RC.ERR_HTTPPROT, txtStatus));
+				cbError (new AvatarException('Completed with an HTTP error: '+errThrown, RC.ERR_HTTPPROT, txtStatus));
 			}
 		},
 		// IN CASE OF A SUCCESS RESPONSE
 		success : function (data, txtStatus, jqXHR) {
-			if (IS_DEBUG) {
+			if (AJAX_DEBUG) {
 				console.log ('Data returned from the request [URI: %s] - (text status: %s):', touri, txtStatus);
 				console.log (data);
 			}
@@ -206,10 +220,31 @@ function ProccessCORSRequest (cors, params, cb, cbError, fileupload) {
 	}
 	// ERRORS
 	else {
-		throw new AvatarException('No COR connection created', AvatarException.RC.ERR_CONNECTION);
+		throw new AvatarException('No COR connection created', RC.ERR_CONNECTION);
 	}
 }
 
+/*
+ * Define the return codes
+ */
+var RC = {
+	/*
+	 * Unknown error
+	 */
+	ERR_UNKNOWN : 4000,
+	/*
+	 * Webcam processing error
+	 */
+	ERR_WEBCAM : 4001,
+	/*
+	 * An error occurred during connection
+	 */
+	ERR_CONNECTION : 4002,
+	/*
+	 * HTTP protocol error
+	 */
+	ERR_HTTPPROT: 4003,
+};
 /*
  * Error object to be used within the framework
  */
@@ -223,7 +258,7 @@ function AvatarException (msg, code, status, e) {
 	/*
 	 * Define the error message
 	 */
-	me.message = e.message || msg;
+	me.message = e ? e.message || msg : msg;
 	/*
 	 * Define the error code
 	 */
@@ -236,28 +271,6 @@ function AvatarException (msg, code, status, e) {
 	 * Stack environment
 	 */
 	me.stack = (new Error()).stack;
-	
-	/*
-	 * Define the return codes
-	 */
-	me.RC = {
-		/*
-		 * Unknown error
-		 */
-		ERR_UNKNOWN : 4000,
-		/*
-		 * Webcam processing error
-		 */
-		ERR_WEBCAM : 4001,
-		/*
-		 * An error occurred during connection
-		 */
-		ERR_CONNECTION : 4002,
-		/*
-		 * HTTP protocol error
-		 */
-		ERR_HTTPPROT: 4003,
-	}
 	
 	return me;
 }

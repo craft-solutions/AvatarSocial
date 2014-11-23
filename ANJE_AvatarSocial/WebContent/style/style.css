@@ -158,6 +158,28 @@ hr{
 	display: none;
 }
 
+.avatar-adamspot {
+	width: 45%;
+	display: block;
+	float: left;
+}
+.avatar-evespot {
+	width: 50%;
+	display: block;
+	float: left;
+}
+.countdown {
+	font-weight: bolder;
+	display: none;
+}
+
+.avatarMouseOverEvent {
+	border: thick;
+	border-style: groove;
+	border-color: fuchsia;
+	cursor: pointer;
+}
+
 .Quarter{
 	width:24%;
 	display:inline-block;
