@@ -1,5 +1,17 @@
 var proth = require ('./ProtocolHelper');
 var StringDecoder = require('string_decoder').StringDecoder;
+var fs = require ('fs');
+var fse = require ('fs-extra');
+
+/*
+ * Template FB configuration to be added into the server
+ */
+var DefaultFBConfiguration = {
+	client_id:      'YOUR FACEBOOK APP ID',
+	client_secret:  'YOU FACEBOOK APP SECRET',
+	scope:          'email, user_about_me, user_birthday, user_location',
+	redirect_uri:   'http://localhost:9999/AvatarSocialNJS/auth/facebook',
+};
 
 /**
  * Helper class used to maintain auxiliary methods
@@ -22,7 +34,7 @@ module.exports = {
 		else {
 			proth.writeJson (res, {
 				success : false,
-				FaultCode : RC.UNKNOW_ERR,
+				FaultCode : e.code || RC.UNKNOW_ERR,
 				FaultMessage : e.message || 'Undefined error',
 				CC : 0
 			});
@@ -30,189 +42,80 @@ module.exports = {
 	},
 	
 	/*
-	 * Selects the city/state/country full structure
+	 * Gets the Adam configuration
 	 */
-	GetLocalization : function (body, connection, cb) {
-		var sql;
-		var params = [];
+	GetAdamConfig: function (cb) {
+		var avatarHome = getAvatarBaseDir ();
+		var adamFile = avatarHome + '/adam-config.json';
 		
-		if ( body.CityNameFilter ) {
-			sql = 'SELECT C.cityId, C.cityName, C.stateId, S.stateName, CO.countryICode, CO.countryName '+
-					'FROM COUNTRY CO, STATE S, CITY C '+
-					'WHERE C.stateId=S.stateId and S.countryICode=CO.countryICode AND C.cityName LIKE ? '+
-					'GROUP BY C.cityId, C.cityName, S.stateId, S.stateName, CO.countryICode, CO.countryName '+
-					'ORDER BY CO.countryName, S.stateId, C.cityName';
+		var config = fse.readJsonSync(adamFile, {throws: false});
+		return config;
+	},
+	/*
+	 * Reads Eve configuration
+	 */
+	GetEveConfig: function () {
+		var avatarHome = getAvatarBaseDir ();
+		var eveFile = avatarHome + '/eve-config.json';
+		
+		var config = fse.readJsonSync(eveFile, {throws: false});
+		return config;
+	},
+	
+	/*
+	 * Saves the user in the directory
+	 */
+	SaveUser : function (user) {
+		if (user) {
+			var avatarHome = getAvatarBaseDir ();
+			var userDir = avatarHome + '/Users';
+			var userFile = userDir + '/'+user.id;
 			
-			params.push ('%'+body.CityNameFilter+'%');
-		}
-		else {
-			sql = 'SELECT C.cityId, C.cityName, C.stateId, S.stateName, CO.countryICode, CO.countryName '+
-					'FROM COUNTRY CO, STATE S, CITY C '+
-					'WHERE C.stateId=S.stateId and S.countryICode=CO.countryICode '+
-					'GROUP BY C.cityId, C.cityName, S.stateId, S.stateName, CO.countryICode, CO.countryName '+
-					'ORDER BY CO.countryName, S.stateId, C.cityName';
-		}
-		
-		// Lets set UTF-8
-		connection.query ('SET NAMES utf8');
-		// Lets query...
-		connection.query (sql, params, function(err, results) {
-				if (err) {
-					cb (undefined, err);
-				}
-				else {
-					var returnObj;
-					
-					var stateCounter = -1;
-					var lastState = '';
-					
-					if ( body.Organize ) {
-						returnObj = {
-							AllCities : [],
-							Country : [{
-								CountryID : 'BRA',
-								CountryName : 'Brasil',
-								States : []
-							}]
-						};
-					}
-					else {
-						returnObj = {
-							AllCities : []
-						};
-					}
-					
-					/*if (isDebugEnable) {
-						console.log ('The location structure was selected:');
-						console.log (results);
-					}*/
-					if (isDebugEnable) {
-						console.log ('Number of cities found to be returned: %d', results.length);
-					}
-					
-					// Iterate all the results
-					results.forEach (function (result, i) {
-//						var cityTrail = new Buffer (result.cityName+'/'+result.stateId);
-//						var decoder = new StringDecoder ('utf8');
-						
-						// Adds the city
-						returnObj.AllCities.push ({
-							ID : result.cityId,
-							Name : decodeURI(escape (result.cityName)),//decoder.write(cityTrail),
-							UF : result.stateId
-						});
-						
-						// Verifies if it's a full query
-						if ( body.Organize ) {
-							// Verifies if it's a different country
-							if ( lastState !== result.stateId ) {
-								returnObj.Country [0].States.push ({
-									StateID : result.stateId,
-									StateName: result.stateName,
-									Cities : [{
-										CityID : result.cityId,
-										CityName : result.cityName
-									}]
-								});
-								
-								// Updates
-								lastState = result.stateId;
-								// Set the state counter
-								stateCounter ++;
-							}
-							// Use the same index
-							else {
-								returnObj.Country [0].States [stateCounter].Cities.push ({
-									CityID : result.cityId,
-									CityName : result.cityName
-								});
-							}
-						}
-					});
-					
-					// Writes the response to the caller
-					cb (returnObj);
-				}
+			// Creates the Avatar home if not exists
+			if ( !fs.exists(userDir) ) {
+				fse.mkdirsSync(userDir);
 			}
-		);
+			
+			// Verifies if the directory information exists
+			fse.writeJson (userFile, user, function (err) {
+				if (err) console.error (err);
+			});
+		}
 	},
 	
 	/*
-	 * Saves the last activity
+	 * Gets the necessary FB connection configuration.
 	 */
-	SaveLastActivity: function (actName, uid, connection) {
-		var sql = 'UPDATE USER SET lastActivityCode=?, lastActivityDate=? WHERE fbUserId=?';
+	GetFBConnConfiguration : function (cb) {
+		var avatarHome = getAvatarBaseDir ();
+		var fbConfig = avatarHome + '/fb-connection.json';
 		
-		try {
-			// Lets execute the update
-			connection.query (sql, [actName, new Date (), uid], function(err, results) {
+		// Creates the Avatar home if not exists
+		if ( !fs.exists(avatarHome) ) {
+			fse.mkdirsSync(avatarHome);
+		}
+		
+		// Verifies if the directory information exists
+		fs.exists(fbConfig, function (exists) {
+			if ( !exists ) {
+				fse.writeJson (fbConfig, DefaultFBConfiguration, function (err) {
+					console.error (err);
+					throw new Error ('The FB configuration need to be setted first');
+				});
+			}
+			// Okays, reads the file
+			else {
+				fse.readJson (fbConfig, function (err, data) {
 					if (err) {
-						console.error ('It wasnt possible to update the activity name [%s] for the FB UID [%d]', actName, uid);
 						console.error (err);
+						throw err;
 					}
 					else {
-						if (isDebugEnable) {
-							console.log ('Activity [%s] was updated successfully for user FBUID [%d]', actName, uid);
-							console.log (results);
-						}
+						if (cb) cb (data);
 					}
-				}
-			);
-		}
-		catch (e) {
-			console.error ('An error ocurred while updating an user activity. Details:');
-			console.error (e);
-		}
-	},
-	
-	/*
-	 * Search for the user in database
-	 */
-	SearchForUser: function (body, cb, connection) {
-		if ( body.FBUID ) {
-			var sql = 'SELECT COUNT(1) AS total FROM USER U WHERE U.fbUserId=?';
-			// Lets do the city query...
-			connection.query (sql, [body.FBUID], function (err, results) {
-				if (err) cb (undefined, err);
-				else if ( results && results.length > 0 ) {
-					if (cb) cb (results[0]);
-				}
-				else if (cb) cb ({total: 0});
-			});
-		}
-		else {
-			throw {
-				success : false,
-				FaultCode : RC.FB_ERR,
-				FaultMessage : 'No FB UID',
-				CC : 0
+				});
 			}
-		}
-	},
-	
-	/*
-	 * Get the User based on his ID
-	 */
-	SelectUser: function (body, cb, connection) {
-		if ( body.FBUID ) {
-			var sql = 'SELECT * FROM USER U WHERE U.fbUserId=? AND U.acceptanceFlag=1 AND U.active=1';
-			// Lets do the city query...
-			connection.query (sql, [body.FBUID], function (err, results) {
-				if (err) cb (undefined, err);
-				else if ( results && results.length > 0 ) {
-					if (cb) cb (results[0]);
-				}
-				else if (cb) cb (undefined);
-			});
-		}
-		else {
-			throw {
-				success : false,
-				FaultCode : RC.FB_ERR,
-				FaultMessage : 'No FB UID',
-				CC : 0
-			}
-		}
+		});
 	},
 	
 	/*

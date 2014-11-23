@@ -1,5 +1,6 @@
 var fs  = require ('fs');
 var fse = require ('fs-extra');
+var help= require ('./Helper');
 
 var DefaultAdam = {
 	/*
@@ -13,6 +14,11 @@ var DefaultAdam = {
 	animationTypes: {
 		'evt-great-tchau' : {code: 1, directory: 'tchau/', startIndex: 0},
 	},
+	
+	/*
+	 * AWS Adam Queue name
+	 */
+	queueName : 'AVATAR_ADAM_IN',
 };
 var DefaultEve = {
 	/*
@@ -26,6 +32,11 @@ var DefaultEve = {
 	animationTypes: {
 		'evt-great-tchau' : {code: 1, directory: 'tchau/', startIndex: 0},
 	},
+	
+	/*
+	 * AWS Eve Queue name
+	 */
+	queueName : 'AVATAR_EVE_IN',
 };
 
 /*
@@ -40,6 +51,10 @@ var UsageAvatar = {
 	 * Flag indificating if this avatar is being used or not
 	 */
 	beingUsed : false,
+	/*
+	 * Saves the currenclt using user for this Avatar
+	 */
+	user : undefined,
 };
 
 /*

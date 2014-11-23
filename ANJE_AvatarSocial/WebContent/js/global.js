@@ -13,6 +13,79 @@ var ErrorCatch = function (e) {
 };
 
 /*
+ * Define the AJAX LOADER best runtime
+ */
+//Implement the Ajax Call rotine
+var AjaxCall = function (touri, obj, cbSuccess, cbError, cbBeforeSend, cbAfterSend) {
+	var error = false;
+	
+	var nmi = 774352;
+	// Creates the message structure for the server protocol
+	var prot = {
+		Transaction: {
+			Header: {
+				nmitoken: nmi * _.random (1000, 1000000), 
+			},
+			Body: obj,
+		}
+	};
+	// Makes the ajax function call
+	jQuery.ajax ({
+		// .... For masking .............................................................
+		beforeSend: function (jqXHR, settings) {
+			if ( cbBeforeSend ) cbBeforeSend (settings, jqXHR);
+		},
+		complete: function (jqXHQ, txtStatus) {
+			if ( cbAfterSend ) cbAfterSend (txtStatus, jqXHQ);
+		},
+		// ..............................................................................
+		data : JSON.stringify (prot),
+		contentType : 'application/json; charset=UTF-8',
+		crossDomain : false,
+		dataType : 'json',
+		error : function (jqXHR, txtStatus, errThrown) {
+			if (IS_DEBUG) {
+				console.log ('Error returned from the request [URI: %s] - (text status: %s): %s', touri, txtStatus, errThrown);
+			}
+			console.error (txtStatus);
+			console.error (errThrown);
+			
+			if ( cbError ) {
+				error = true;
+				cbError (new AvatarException('Completed with an HTTP error: '+errThrown,AvatarException.RC.ERR_HTTPPROT, txtStatus));
+			}
+		},
+		// IN CASE OF A SUCCESS RESPONSE
+		success : function (data, txtStatus, jqXHR) {
+			if (IS_DEBUG) {
+				console.log ('Data returned from the request [URI: %s] - (text status: %s):', touri, txtStatus);
+				console.log (data);
+			}
+			
+			// Only process the response if no errors were found
+			if ( ! error ) {
+				// Verifies if it didnt happen an app error
+				if ( data && data.success ) {
+					if (cbSuccess) {
+						cbSuccess (data);
+					}
+				}
+				// Error
+				else {
+					if (cbError) cbError (new AvatarException(data.FaultMessage,data.FaultCode, data.CC));
+					error = true;
+				}
+			}
+		},
+		type: 'POST',
+		url : touri,
+		xhrFields: {
+			withCredentials: false
+		},
+	});
+};
+
+/*
  * Creates the CORS request
  */
 function createCORSRequest(method, url) {
@@ -180,6 +253,10 @@ function AvatarException (msg, code, status, e) {
 		 * An error occurred during connection
 		 */
 		ERR_CONNECTION : 4002,
+		/*
+		 * HTTP protocol error
+		 */
+		ERR_HTTPPROT: 4003,
 	}
 	
 	return me;

@@ -7,7 +7,7 @@ function NMISecurity () {
 	/*
 	 * Define the key (CI) to be used
 	 */
-	me.key = 777456;
+	me.key = 774352;
 	/*
 	 * List of used ATs
 	 */

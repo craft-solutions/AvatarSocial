@@ -4,9 +4,13 @@
  */
 
 var express = require('express')
+  ,	session = require('express-session')
+  , json	= require('json')
+  , bodyParser = require('body-parser')
   , routes = require('./routes')
   , user = require('./routes/user')
   , fbflow 	= require ('./routes/fbflow')
+  , queueflow = require ('./routes/queuecontrol')
   , http = require('http')
   , path = require('path')
   , mod_panic = require('panic')
@@ -24,17 +28,17 @@ var app = express();
 /*
  *  Define a set of usage functions to be used in sequence for the
  *  "express" node framework
- */ 
-app.use(express.bodyParser());
-app.use(express.methodOverride());
-app.use(app.router);
+ */
 // all environments
+//app.set('view engine', 'jade');
 app.set('port', process.env.PORT || 9999);
-app.use(express.favicon());
-app.use(express.logger('dev'));
-app.use(express.json());
-app.use(express.urlencoded());
 app.use(express.static(path.join(__dirname, 'public')));
+//app.use(express.cookieSession());
+app.use(session({
+	secret: 'AvatarSocialCookieSession',
+}));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended: true}));
 
 /////////////////////////////////////////////////////////////
 //GLOBAL VARIABLES /////////////////////////////////////////
@@ -43,6 +47,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 GLOBAL.isDebugEnable = true;
 GLOBAL.workers = [];
 GLOBAL.RC = require ('./FaultCodes');
+
+GLOBAL.NJSCTXROOT = '/AvatarSocialNJS';
+GLOBAL.WEBCTXROOT = '/AvatarSocial';
 
 // AUXILIARY GLOBAL FUNCTIONS
 /*
@@ -66,17 +73,10 @@ console.log ('Initializing Avatar Control class');
 //The Avatar control
 GLOBAL.avatarmodel = require ('./AvatarControl').init ();
 // AWS configuration
-GLOBAL.awscfg = awscfg.newInstance ();
+GLOBAL.AWSh = awscfg.newInstance ();
 
 /////////////////////////////////////////////////////////////
 console.log  ('Branch type is: '+ app.get('env'));
-//development and production configuration
-app.configure('development', function(){
-	app.use(express.errorHandler({ dumpExceptions: true, showStack: true })); 
-});
-app.configure('production', function(){
-	app.use(express.errorHandler());
-});
 //DEFAULT ERROR HANDLER ...
 app.use (function ( err, req, res, next ) {
 	if (err && !res.headerSent) {
@@ -105,6 +105,17 @@ mod_panic.enablePanicOnCrash({
 // TESTS!!!!
 app.get('/', routes.index);
 app.get('/users', user.list);
+// USER CONNECT
+app.get (NJSCTXROOT+'/auth/facebook', fbflow.fblogin);
+app.get (NJSCTXROOT+'/auth/fbme', fbflow.fbme);
+app.post (NJSCTXROOT+'/queue/countadam', queueflow.verifyAdamAvailability);
+app.post (NJSCTXROOT+'/queue/counteve', queueflow.verifyEveAvailability);
+app.post (NJSCTXROOT+'/queue/add2adam', queueflow.registerToAdamQ);
+app.post (NJSCTXROOT+'/queue/add2eve', queueflow.registerToEveQ);
+
+
+
+
 
 //CREATES THE HTTP SERVER
 http.createServer(app).listen(app.get('port'), function(){

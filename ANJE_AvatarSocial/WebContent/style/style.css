@@ -1,0 +1,188 @@
+@charset "UTF-8";
+/* CSS Document */
+
+/* CSS Document */
+/* === CSS RESET === */
+html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
+}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, section {
+	display: block;
+}
+body {
+	line-height: 1;
+}
+ol, ul {
+	list-style: none;
+}
+blockquote, q {
+	quotes: none;
+}
+blockquote:before, blockquote:after, q:before, q:after {
+	content: '';
+	content: none;
+}
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+/* === End of CSS RESET === */
+
+/* === FONTS  === */
+
+@import url(http://fonts.googleapis.com/css?family=Source+Sans+Pro:200,400);
+
+/* === End of FONTS === */
+
+/* === Default Styles === */
+
+*, *:before, *:after {
+    box-sizing: border-box;
+	-webkit-transition: all 0.3s ease-in-out;
+	-moz-transition: all 0.3s ease-in-out;
+	-o-transition: all 0.3s ease-in-out;
+	transition: all 0.3s ease-in-out;
+    
+}
+
+body {
+	font-family: 'Source Sans Pro', sans-serif;
+	font-weight: 200;
+	color: #333333;
+	/*overflow: hidden;*/
+	background-color: #ffd42e;
+	letter-spacing:1px;
+	
+	overflow:hidden;
+	min-width:750px;
+	min-height:450px;
+}
+a {
+	color:inherit;
+	text-decoration:none;
+	font-size: 13px;
+	font-weight: 400;
+}
+p {
+	font-size: 21px;
+	font-weight: 200;
+	margin:0px 0px 7px 0px;
+	line-height:140%;
+}
+h1{
+	font-size: 40px;
+	font-weight: 400;
+	margin:0;
+	text-align:center;
+}
+
+h2 {
+	font-size: 21px;
+	font-weight: 400;
+	/*margin-bottom: 5px;*/
+}
+
+h3 {
+	font-size: 21px;
+	font-weight: 400;
+}
+
+b, strong {
+	text-decoration:none;
+	font-weight: 700;
+}
+
+hr{
+	height:1px;
+	border:0px;
+	background-color:#fff;
+	width:80%;
+}
+
+#Clear{clear:both;}
+
+.Space {height:15px;}
+.MoreSpace {height:30px;}
+
+::selection {color:black;background:#101010;}
+::-moz-selection {color:black;background:#ffd42e;} 
+
+/* === Content === */
+
+.BGFeira {
+	background-image:url(../img/bg_feiraempreendedor.jpg);
+	background-position:center bottom;
+	background-size:cover;
+	position:absolute;
+	top:0;
+	left:0;
+	bottom:0;
+	right:0;
+	
+	min-width:750px;
+	min-height:600px;
+	
+}
+
+#Content {
+	margin:0 auto;
+	max-width: 725px;
+}
+
+.Aleft{float:left; margin-top:10px;}
+.ARight{float:right;}
+.ACenter{text-align:center}
+.Logos{height:140px;}
+
+.Title{
+}
+
+.Logos{
+	text-align:center;
+}
+
+.isPanel{
+	background-color: rgba(67,154,212,0.70);
+	padding:10px;
+	color:white !important;
+	margin:15px 0;
+}
+
+#AvatarInteraction {
+	display: none;
+}
+
+.Quarter{
+	width:24%;
+	display:inline-block;
+	text-align:center !important;
+	vertical-align:middle;
+}
+.Fifth{
+	width:19%;
+	display:inline-block;
+	text-align:center !important;
+	vertical-align:middle;
+}
+.Apoio{
+	margin:20px 0;
+	text-align:center;
+}
+
+
+
+
+
+
+
+
+
+
+
+

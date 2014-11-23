@@ -1,3 +1,5 @@
+var _ = require('underscore');
+
 /**
  * Helper class used to strip protocol information 
  */
@@ -51,9 +53,33 @@ module.exports = {
 	},
 	
 	/*
+	 * Throws an exception to the client
+	 */
+	ThrowException: function (res, e) {
+		var me = this;
+		var err = {
+			success : false,
+			FaultCode : e.FaultCode || e.code || RC.UNKNOW_ERR,
+			FaultMessage : e.FaultMessage || e.message || 'Internal Server Error',
+			CC : 0
+		};
+		
+		me.writeJson (res, err);
+	},
+	WriteSuccessResponse : function (res, obj) {
+		var me = this;
+		var successRes = {
+			success : true,
+		};
+		_.extend(successRes, obj);
+		
+		me.writeJson (res, successRes);
+	},
+	
+	/*
 	 * Writes a JSON response
 	 */
-	writeJson : function (res, obj) {
+	writeJson : function (res, obj, status) {
 		/*
 		 *  Writes a JSON response with the object data
 		 *  Only sends the data, if the headers haven't already been written.
@@ -64,7 +90,7 @@ module.exports = {
 //			res.setHeader ('Content-Type', 'application/json; charset=utf-8');
 			res.charset = 'UTF-8';
 			
-			res.json (200 /*Okay...*/, obj);
+			res.status (status || 200/*Okay*/).json (obj);
 			
 			// ends the connection
 			res.end ();

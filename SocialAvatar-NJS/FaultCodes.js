@@ -34,5 +34,9 @@ module.exports = {
 	 * Avatar Errors
 	 */
 	AVATAR_ERROR: 5007,
+	/*
+	 * Login error
+	 */
+	LOGIN_ERROR: 5008,
 };
 
