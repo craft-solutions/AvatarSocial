@@ -9,6 +9,7 @@ var express = require('express')
   , bodyParser = require('body-parser')
   , routes = require('./routes')
   , user = require('./routes/user')
+  , avatar = require ('./routes/avatar')
   , fbflow 	= require ('./routes/fbflow')
   , queueflow = require ('./routes/queuecontrol')
   , http = require('http')
@@ -127,6 +128,9 @@ app.post (NJSCTXROOT+'/queue/adamrmusr', queueflow.removeUserFromAdamQ);
 app.post (NJSCTXROOT+'/queue/evermusr', queueflow.removeUserFromEveQ);
 // Partner processing
 app.post (NJSCTXROOT+'/partner/login', user.partnerLogin);
+// Avatar processing
+app.post (NJSCTXROOT+'/avatar/actions', avatar.listCharacterInteractions);
+app.post (NJSCTXROOT+'/avatar/idles', avatar.listIdleInteraction);
 
 
 

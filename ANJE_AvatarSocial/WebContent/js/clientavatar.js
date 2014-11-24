@@ -91,7 +91,7 @@ ClientAvatar.prototype.partnerLoginUIControl = function () {
 					$('#PartnerLogin').modal ('hide');
 					// Removes the button and adds the Partner information in the page
 					$('#LoginPartnerBtn').fadeOut ('slow');
-					$('#PartnerName').get (0).innerHTML = 'Aceder como: '+me.partner.name;
+					$('#PartnerName').get (0).innerHTML = 'Acedeu como: '+me.partner.name;
 					$('.partner-name').fadeIn ('slow');
 				}
 				// Problem!

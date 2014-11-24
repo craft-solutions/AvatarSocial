@@ -1,0 +1,12 @@
+{
+	"InteractionActions":[
+	    {"id": 1, "name": "Cansado", "type":"idle", "baseMovieDirectory": ""},
+	    {"id": 2, "name": "Chamar Atenção", "type":"idle", "baseMovieDirectory": ""},
+	    {"id": 3, "name": "Triste", "type":"idle", "baseMovieDirectory": ""},
+	    {"id": 4, "name": "Noc Noc Whos there?", "type":"action", "baseMovieDirectory": ""}
+	    {"id": 5, "name": "Chamar Atenção", "type":"action", "baseMovieDirectory": ""},
+	],
+	"InteractionSounds": [
+	    {"id": 1, "name": "New Age", "fileName": ""}
+	]
+}

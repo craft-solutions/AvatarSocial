@@ -17,6 +17,10 @@ function AvatarControl (domd, doms) {
 	 * Control for the execution flag
 	 */
 	me.ControlFlag = false;
+	/*
+	 * Saves the Avatar possible interactions
+	 */
+	me.interactions;
 	
 	/*
 	 * Usage control flag
@@ -68,12 +72,76 @@ AvatarControl.prototype.start = function (type) {
 		var ts = (new Date ().getTime ()) + (4.9999*60*1000);
 		me.usageTime = new Date (ts);
 		
+		// Before start, must first load the actions
+		AjaxCall(NJSCTXROOT+'/avatar/actions', {}, function (interacts) {
+			me.interactions = interacts;
+			var actions = me.interactions.Actions;
+			var sounds  = me.interactions.Sounds
+			
+			// Add the supported actions to the play list
+			$.each (actions, function (i, action) {
+				var $li = action.divider ? $('<li class="divider"></li>') : $('<li><a href="#" id="I_'+action.id+'">'+action.name+'</a></li>');
+				
+				$('#SelectActionList').append ($li);
+				// Only performs if it's not a divier
+				if (!action.divider) {
+					$('#I_'+action.id).click (function (e) {
+						// Process the selection
+						me.processAction($(this), action);
+					});
+				}
+			});
+			// Add the supported sounds to the play list
+			$.each (sounds, function (i, sound) {//<li><a href="#">NewAge</a></li>
+				var $li = sound.divider ? $('<li class="divider"></li>') : $('<li><a href="#" id="S_'+sound.id+'">'+sound.name+'</a></li>');
+				
+				$('#SelectSoundList').append ($li);
+				// Only performs if it's not a divier
+				if (!sound.divider) {
+					$('#S_'+sound.id).click (function (e) {
+						// Process the selection
+						me.processSound($(this), sound);
+					});
+				}
+			});
+		}, ErrorCatch);
+		
 		// Starts the usage control
 		me.startUsageControl();
 		
 		// TODO: Implement!
 		
 	});
+};
+
+/*
+ * Process action in the server
+ */
+AvatarControl.prototype.processAction = function ($a, action) {
+	var me = this;
+	var $msg = $('#AvatarMsg');
+	var textVal = $msg.val ();
+	
+	if ( textVal === '' ) {
+		$msg.addClass ('danger');
+	}
+	else {
+		$msg.removeClass ('danger');
+		
+		
+	}
+		
+	// TODO: Implement
+	console.log ('CLICKED ACTION NAMED: %s', action.name);
+	$('#StatusBar').modal ('show');
+};
+/*
+ * Process sound in the server
+ */
+AvatarControl.prototype.processSound = function ($a, sound) {
+	var me = this;
+	// TODO: Implement
+	console.log ('CLICKED SOUND NAMED: %s', sound.name);
 };
 
 /*

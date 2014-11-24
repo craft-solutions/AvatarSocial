@@ -2,6 +2,8 @@ var fs  = require ('fs');
 var fse = require ('fs-extra');
 var AWS = require ('aws-sdk');
 var help= require ('./Helper');
+var _   = require ('underscore');
+var uuid= require('node-uuid');
 
 /*
  * Default connection data
@@ -354,6 +356,121 @@ AWSHelper.prototype.addRequestToQ = function (user, queueUrl, cb) {
 			}
 			
 			if (cb) cb (null, data.MessageId);
+		}
+	});
+};
+
+var COMMAND_INPUT_Q = 'https://sqs.eu-west-1.amazonaws.com/539168730222/AVATAR_CONTROL_IN';
+var COMMAND_OUTPUT_Q = 'https://sqs.eu-west-1.amazonaws.com/539168730222/AVATAR_CONTROL_OUT';
+/*
+ * Add a new request to the COMMAND Queue
+ */
+AWSHelper.prototype.addRequestToCmdQ = function (obj, inputOutput, cb, uniid) {
+	var me = this;
+
+	var newobj = {
+		uniqueId : uniid || uuid.v4 (),
+	};
+	
+	_.extend (newobj, obj);
+	// Define the parameters for aws
+	var params = {
+		MessageBody: JSON.stringify(newobj),
+		QueueUrl: inputOutput ? COMMAND_INPUT_Q : COMMAND_OUTPUT_Q,
+		DelaySeconds: 0,
+	};
+	// Sends the user to the processing queue
+	me.getSQS ().sendMessage(params, function(err, data) {
+		if (err) {
+			console.error(err, err.stack); // an error occurred
+			
+			if (cb) cb(err);
+		}
+		else {
+			if (isDebugEnable) {
+				console.log(data);
+			}
+			
+			if (cb) {
+				cb (null, {
+					messageId: data.MessageId,
+					uniqueId: newobj.uniqueId
+				});
+			}
+		}
+	});
+};
+/*
+ * Process a response from the queue
+ */
+AWSHelper.prototype.receiveFromCmdQ = function (uniid, inputOutput, cb, bcount) {
+	var me = this;
+	var batchCount = bcount || 5;
+	
+	
+	// Define the receive AWS parameters
+	var params = {
+		QueueUrl: queueUrl,
+		MaxNumberOfMessages: batchCount,
+		VisibilityTimeout: 1,
+		WaitTimeSeconds: 1,// Lets at least wait 1 second, it doesn't cost	
+	};
+	
+	if (isDebugEnable) {
+		console.log ('Parameters used to retrieve message from AWS SQS:');
+		console.log (params);
+	}
+	
+	// Let's get the message
+	me.getSQS ().receiveMessage(params, function(err, data) {
+		if (err) {
+			console.error(err, err.stack); // an error occurred
+			if (cb) cb (err);
+		}
+		else {
+			if (isDebugEnable) {
+				console.log ('Message retrieved from the Avatar command queue:');
+				console.log(data);
+			}
+			
+			if (data && data.Messages && data.Messages.length > 0 ) {
+				var queueUrl = inputOutput ? COMMAND_INPUT_Q : COMMAND_OUTPUT_Q;
+				
+				if (bcount && uniid) {
+					// Iter all the messages before returning
+					var n=0, commandQData;
+					for (;n<data.Messages.length;n++) {
+						var currmsg = data.Messages [n];
+						
+						var cmd = JSON.parse (currmsg.Body);
+						
+						if ( cmd.uniqueId === uniid ) {
+							commandQData = cmd;
+							
+							// Rmoves the queue
+							me.removeMsgFromQ(currmsg, queueUrl);
+							
+							break;
+						}
+					}
+					// Return the users
+					if (cb) {
+						cb (null, commandQData);
+					}
+				}
+				// Just get the first message that came
+				else {
+					var currmsg = data.Messages [0];
+					var cmd = currmsg.Body;
+					// Just return...
+					if (cb) {
+						// Rmoves the queue
+						me.removeMsgFromQ(currmsg, queueUrl);
+						cb (null, cmd);
+					}
+				}
+			}
+			else if (cb) cb ();
 		}
 	});
 };

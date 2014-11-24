@@ -64,6 +64,25 @@ module.exports = {
 	},
 	
 	/*
+	 * Gets the Avatar interaction file
+	 */
+	GetAvatarInteractionFile : function () {
+		var avatarHome = getAvatarBaseDir ();
+		var interactFile = avatarHome + '/avatar-interaction.json';
+		
+		if (!fs.exists) {
+			if (cb) cb ({
+				FaultMessage : 'No Avatar interaction information found',
+				FaultCode  	 : RC.AVATAR_ERROR,
+			});
+		}
+		else {
+			var config = fse.readJsonSync(interactFile, {throws: true});
+			return config;
+		}
+	},
+	
+	/*
 	 * Gets the partner configuration file
 	 */
 	LoadPartnerDB : function (cb) {
