@@ -13,26 +13,6 @@
 <link rel="stylesheet" type="text/css" href="style/style.css">
 </head>
 <body>
-<div id="maskit"></div>
-<div class="modal fade" aria-hidden="true" id="Counter2Avatar">
-	<div class="modal-dialog">
-		<div class="modal-content">
-			<div class="modal-header">
-        		<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Fechar</span></button>
-        		<h4 class="modal-title">Em alguns instantes poderá "Personificar o Avatar"!</h4>
-      		</div>
-      		<div class="modal-body">
-      			<p>Você está na fila para incorporar o Avatar. Aguarde mais alguns instantes, e enquanto aguarda, tome um café, ou 
-      			então coma alguma coisa. Alguma coisa maravilhosa está por acontecer. Podes utilizá-lo em:</p>
-      			<p id="WaitCounter" style="text-align: center;">TESTE</p>
-				</div>
-      		<div class="modal-footer">
-        		<button type="button" class="btn btn-default" data-dismiss="modal">Sair da fila de espera!</button>
-        		<button type="button" class="btn btn-primary" disabled="true">INCORPORAR!</button>
-      		</div>
-    	</div><!-- /.modal-content -->
-  	</div><!-- /.modal-dialog -->
-</div><!-- /.modal -->
 
 <div class="BGFeira">
     <div id="Content">
@@ -42,23 +22,75 @@
         	<a href="http://craft-solutions.com" target="_blank"><img src="img/logo_craftsolutions.png" width="150" class="ACenter" alt="Craft-Solutions"/></a>
         	<a href="http://feiradoempreendedor.anje.pt" target="_blank"><img src="img/logo_BornGlobal.png" width="150" class="ARight" alt="Anje"/></a>
         </div>
+        <div class="partner-name">
+        	<h3 id="PartnerName"></h3>
+        </div>
         <!-- <div class="MoreSpace"></div> -->
-        <div class="Title" id="AvatarInteraction">
+        <div id="AvatarInteraction">
             <!-- <div class="Space"></div> -->
-            <p class="isPanel" id="YoutubePanel">
+            <div class="btn btn-lg countdown-usage" 
+						data-toggle="popover"
+     					data-placement="top" 
+     					data-trigger="focus" 
+     					data-content="Tempo máximo de uso do Avatar" style="color: white;"></div>
+            <div class="class="embed-responsive embed-responsive-16by9" id="YoutubePanel">
             	<!-- YOUTUBE PANEL CHANNEL GOES HERE!-->
-            	<!-- CONTROLS -->
-            	<div id="AvatarControls"></div>
-			</p>
+			</div>
+			<!-- CONTROLS -->
+           	<div id="AvatarControls" class="isPanel">
+           		Observe o movimento do evento no ecrã acima e interaja com os participantes. Você pode mandar mensagens, executar ações no
+           		Avatar, ou até enviar um som para ser tocado pelo seu avatar. Para isso, escreva sua mensagem e selecione a ação (ou som)
+           		que deseja enviar.
+           		<br/><br/>
+           		<form class="form-inline" role="form">
+           			<div class="form-group">
+						<input type="text" style="width: 400px;" maxlength="70" class="form-control" placeholder="Digite a Mensagem para o Avatar!"></textarea>
+					</div>
+					<div class="form-group">
+						<div class="btn-group">
+	  						<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+	    						Executar Ação <span class="caret"></span>
+	  						</button>
+	  						<ul class="dropdown-menu" role="menu">
+	    						<li><a href="#">Dancinha</a></li>
+	    						<li><a href="#">Comprimenta</a></li>
+	    						<li><a href="#">Chama atenção</a></li>
+								<li class="divider"></li>
+								<li><a href="#">Não gosto</a></li>
+	  						</ul>
+						</div>
+					</div>
+					<div class="form-group">
+						<div class="btn-group">
+	  						<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+	    						Enviar Som <span class="caret"></span>
+	  						</button>
+	  						<ul class="dropdown-menu" role="menu">
+	    						<li><a href="#">NewAge</a></li>
+	    						<li><a href="#">Dance</a></li>
+	    						<li><a href="#">NocNoc</a></li>
+	  						</ul>
+						</div>
+					</div>
+				</form>
+           	</div>
         </div>
         <div class="Title" id="AvatarSelection">
         	<div id="SpotContainer">
-        		<div id="AdamSpot" class="avatar-adamspot">
+        		<div id="AdamSpot" class="btn btn-lg avatar-adamspot" 
+        							data-toggle="popover"
+        							data-placement="top" 
+        							data-trigger="focus" 
+        							data-content="Clique para incorporá-lo!" title="ADAM">
         			<div id="AdamCountdown" class="countdown">
-        				<h6 id="AdamSpotInfo"></h6>
+        				<h6 id="AdamSpotInfo" style="font-size: 11px; font-weight: bold;"></h6>
         			</div>
         		</div>
-        		<div id="EveSpot" class="avatar-evespot">
+        		<div id="EveSpot" class="btn btn-lg avatar-evespot" 
+        							data-toggle="popover"
+        							data-placement="top" 
+        							data-trigger="focus" 
+        							data-content="Clique para incorporá-la!" title="EVE">
         			<div id="EveCountdown" class="countdown">
         				<h6 id="EveSpotInfo"></h6>
         			</div>
@@ -68,12 +100,64 @@
             <!-- <div class="Space"></div> -->
             <!-- TODO: Implement -->
             <p class="isPanel">
-            	Clique em um dos Avatares em cima para incorporá-lo. Caso o avatar não esteja disponível, espere
-            	pelo tempo dos usuários sairem das filas.
+            	Comece por selecionar o Avatar que deseja incorporar. Apenas uma pessoa pode impersonificar 
+            	o Avatar de cada vez, e assim se o seu Avatar estiver ocupado, ainda pode entrar na fila de espera.
+             	Faça a sua escolha, e clique no Avatar para incorporá-lo.<br/><br/>
+            	<button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#PartnerLogin" id="LoginPartnerBtn">
+            		<b>Parceiro, Clique aqui!</b>
+            	</button>
 			</p>
         </div>
     </div>
 </div>
+
+<div id="maskit"></div>
+<!-- MODAL DIALOGS!!! -->
+<div class="modal fade" aria-hidden="true" id="Counter2Avatar">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+        		<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Fechar</span></button>
+        		<h4 class="modal-title">Em alguns instantes poderá "Personificar o Avatar"!</h4>
+      		</div>
+      		<div class="modal-body">
+      			<p>Esta na fila para "impersonificar" o seu Avatar. Aguarde apenas mais alguns momentos, e em
+      			alguns instantes já pode incorporá-lo. O seu Avatar em:</p>
+      			<p id="WaitCounter" style="text-align: center;"></p>
+				</div>
+      		<div class="modal-footer">
+        		<button type="button" class="btn btn-default" data-dismiss="modal">Sair da fila de espera!</button>
+      		</div>
+    	</div><!-- /.modal-content -->
+  	</div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+<div class="modal fade" aria-hidden="true" role="dialog" id="PartnerLogin">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+        		<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Fechar</span></button>
+        		<h4 class="modal-title">Partner Login</h4>
+      		</div>
+      		<div class="modal-body">
+      			<p>Faça o seu Login para personalizar seu Avatar</p>
+      			<h5 id="LoginProblem" style="color: red; display: none;font-weight: bolder;width: 98%; text-align: center;">Utilizador ou senha incorrectos</h5>
+      			<h5 id="LoginOk" style="color: green; display: none;font-weight: bolder;width: 98%; text-align: center;">Ok!</h5>
+      			<form role="form">
+      				<div class="form-group">
+				    	<input type="text" class="form-control" id="userid" placeholder="Digite seu utilizador aqui...">
+					</div>
+					<div class="form-group">
+				    	<input type="password" class="form-control" id="password" placeholder="Digite sua senha...">
+					</div>
+				</form>
+			</div>
+      		<div class="modal-footer">
+      			<button type="button" class="btn btn-primary" id="PartnerMadeLogin">Aceder</button>
+        		<button type="button" class="btn btn-default" data-dismiss="modal">Sair!</button>
+      		</div>
+    	</div><!-- /.modal-content -->
+  	</div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
 
 <!-- <center>
 <video autoplay="autoplay" width="800" height="600" id="captureCam"/>

@@ -125,6 +125,8 @@ app.post (NJSCTXROOT+'/queue/adamlastprc', queueflow.getAdamLastTS);
 app.post (NJSCTXROOT+'/queue/evelastprc', queueflow.getEveLastTS);
 app.post (NJSCTXROOT+'/queue/adamrmusr', queueflow.removeUserFromAdamQ);
 app.post (NJSCTXROOT+'/queue/evermusr', queueflow.removeUserFromEveQ);
+// Partner processing
+app.post (NJSCTXROOT+'/partner/login', user.partnerLogin);
 
 
 

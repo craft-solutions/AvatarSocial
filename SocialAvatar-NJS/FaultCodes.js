@@ -38,5 +38,9 @@ module.exports = {
 	 * Login error
 	 */
 	LOGIN_ERROR: 5008,
+	/*
+	 * Partner error
+	 */
+	PARTNER_ERROR : 5009,
 };
 

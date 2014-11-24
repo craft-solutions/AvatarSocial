@@ -172,12 +172,22 @@ hr{
 	font-weight: bolder;
 	display: none;
 }
+.countdown-usage {
+	text-align: center;
+	width: 100%;
+	cursor: help;
+}
 
 .avatarMouseOverEvent {
 	border: thick;
 	border-style: groove;
 	border-color: fuchsia;
 	cursor: pointer;
+}
+
+.partner-name {
+	text-align: center;
+	display: none;
 }
 
 .Quarter{

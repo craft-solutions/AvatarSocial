@@ -2,6 +2,7 @@ var proth = require ('./ProtocolHelper');
 var StringDecoder = require('string_decoder').StringDecoder;
 var fs = require ('fs');
 var fse = require ('fs-extra');
+var User = require ('./user-maintainance/User');
 
 /*
  * Template FB configuration to be added into the server
@@ -60,6 +61,39 @@ module.exports = {
 		
 		var config = fse.readJsonSync(eveFile, {throws: false});
 		return config;
+	},
+	
+	/*
+	 * Gets the partner configuration file
+	 */
+	LoadPartnerDB : function (cb) {
+		var avatarHome = getAvatarBaseDir ();
+		var partnerDBFile = avatarHome + '/partner-db.json';
+		if (isDebugEnable) {
+			console.log ('About to load the partner DB from: %s', partnerDBFile);
+		}
+		
+		// Verifies the file stat before load!
+		fs.lstat(partnerDBFile, function (err, inodeStatus) {
+			if (err) {
+				// file does not exist-
+			    if (err.code === 'ENOENT' ) {
+			    	console.error ('No file or directory at: %s', partnerDBFile);
+			    }
+			    console.error(err);
+
+			    if (cb) cb ({
+					FaultMessage : 'No partner DB defined',
+					FaultCode  	 : RC.PARTNER_ERROR,
+				});
+			}
+			// Okay!
+			else {
+				var db = fse.readJsonSync(partnerDBFile, {throws: true});
+				
+				if (cb) cb (null, db);
+			}
+		});
 	},
 	
 	/*

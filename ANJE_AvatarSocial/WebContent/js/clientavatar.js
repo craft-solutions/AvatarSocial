@@ -39,6 +39,11 @@ function ClientAvatar () {
 	me.registerUIEvents();
 	
 	/*
+	 * Saves the logged partner
+	 */
+	me.partner;
+	
+	/*
 	 * Control Flag
 	 */
 	me.ControlFlag = false;
@@ -49,6 +54,65 @@ function ClientAvatar () {
 	
 	return me;
 }
+
+/*
+ * Partner login
+ */
+ClientAvatar.prototype.partnerLoginUIControl = function () {
+	var me = this;
+	
+	// Partner login event
+	$('#PartnerMadeLogin').click (function (e) {
+		e.preventDefault ();
+		e.stopPropagation ();
+		
+		// gets the user and password
+		var userid = $('#userid').val ();
+		var password = $('#password').val ();
+		
+		if (userid === '' || password === '') {
+			$('#LoginOk').fadeOut ('slow');
+			$('#LoginProblem').fadeIn ('slow');
+		}
+		else { //Okay
+			// Now it's time to login
+			AjaxCall(NJSCTXROOT+'/partner/login', {
+				userid : userid,
+				password : password,
+			}, function (data) {
+				// Verify if the login was successfully
+				if ( data.logged ) { //Okay!
+					$('#LoginProblem').fadeOut ('fast');
+					$('#LoginOk').fadeIn ('slow');
+					
+					// Saves the partner
+					me.partner = data.partner;
+					
+					$('#PartnerLogin').modal ('hide');
+					// Removes the button and adds the Partner information in the page
+					$('#LoginPartnerBtn').fadeOut ('slow');
+					$('#PartnerName').get (0).innerHTML = 'Aceder como: '+me.partner.name;
+					$('.partner-name').fadeIn ('slow');
+				}
+				// Problem!
+				else {
+					$('#LoginOk').fadeOut ('fast');
+					$('#LoginProblem').fadeIn ('slow');
+				}
+			}, ErrorCatch, /*Before sending*/function () {
+				// Disable all the buttons
+				$('#userid').prop('disabled', true);
+				$('#password').prop('disabled', true);
+				$('#PartnerMadeLogin').prop('disabled', true);
+			}, /*After receiving response */function () {
+				// Enable the buttons
+				$('#userid').prop('disabled', false);
+				$('#password').prop('disabled', false);
+				$('#PartnerMadeLogin').prop('disabled', false);
+			});
+		}
+	});
+};
 
 /*
  * Register the function to be fired when a spot for Eve is available
@@ -74,14 +138,20 @@ ClientAvatar.prototype.registerUIEvents = function () {
 	
 	var Adam = $('#AdamSpot');
 	var Eve  = $('#EveSpot');
+	
+	// Register the partner login events
+	me.partnerLoginUIControl();
 	// ADAM EVENTS ------------------------------------------------------------------------
 	Adam.hover (function (e) {
 		// Have spots on the queue
 		$(this).addClass ('avatarMouseOverEvent');
+		$(this).popover ('show');
 	}, /*OUT*/function (e) {
 		$(this).removeClass ('avatarMouseOverEvent');
+		$(this).popover ('hide');
 	});
 	
+	$('#myModal').modal({show: false});
 	// Click in the Avatar
 	Adam.click (function (e) {
 		e.stopPropagation ();
@@ -91,7 +161,10 @@ ClientAvatar.prototype.registerUIEvents = function () {
 		 * Now it's time to trigger the event for when
 		 * a spot is available 
 		 */
-		if (me.adamEventFunction && me.adamSpotCount<=0) me.adamEventFunction ();
+		if (me.adamEventFunction && me.adamSpotCount<=0) {
+			$('#Counter2Avatar').modal('hide');
+			me.adamEventFunction ();
+		}
 		// Puts the counter to actually starts the avatar
 		else if (me.adamEventFunction) {
 			// Adds the user to the queue
@@ -99,9 +172,71 @@ ClientAvatar.prototype.registerUIEvents = function () {
 				// Now it's time to calculate the amount of time to wait
 				AjaxCall(NJSCTXROOT+'/queue/adamlastprc', {}, function (dt) {
 					var nowts = new Date ().getTime ();
-					var timesum = (me.adamSpotCount * (5*6*1000)) + (new Date().getTime () - dt.ts) + nowts;
+					var currentAdamSpot = me.adamSpotCount;
+					var timesum = (me.adamSpotCount * (5*60*1000)) + (new Date().getTime () - dt.ts) + nowts;
+					var timeoutcontrol;
+					var countDownElement = document.getElementById("WaitCounter");
 					
+					// ===================================================================================================
+					// Open the model and register his event =============================================================
+					// ===================================================================================================
 					$('#Counter2Avatar').modal('show');
+					$('#Counter2Avatar').unbind ('hidden.bs.modal');
+					$('#Counter2Avatar').on('hidden.bs.modal', function (e) {
+						if (timeoutcontrol) {
+							clearInterval(timeoutcontrol);
+							timeoutcontrol = undefined;
+							
+							// Must remove him from the queue
+							AjaxCall(NJSCTXROOT+'/queue/adamrmusr', {}, function (data) {
+								console.warn ('Successfuly removed user from personification Queue');
+							});
+						}
+					});
+					// ===================================================================================================
+					
+					var lastMinute=0;
+					// Process the timeout
+					timeoutcontrol = setInterval(function () {
+						var now = new Date ();
+						var to  = new Date (timesum);
+						var coutdownInfo = countdown (to);
+						var minutes  = coutdownInfo.minutes;
+						var seconds = coutdownInfo.seconds;
+						
+						if ((minutes === 0 && seconds === 0) || now.getTime ()>to.getTime() ) {
+							clearInterval(timeoutcontrol);
+							timeoutcontrol = undefined;
+							// ENTER THE AVATAR!!!!
+							if (me.adamEventFunction) {
+								$('#Counter2Avatar').modal('hide');
+								me.adamEventFunction ();
+							}
+							else {
+								if (timeoutcontrol) {
+									// Must remove him from the queue
+									AjaxCall(NJSCTXROOT+'/queue/adamrmusr', {}, function (data) {
+										$('#Counter2Avatar').modal('hide');
+										ErrorCatch ({
+											message: 'Impossible to incorporate the Avatar. Internal framework problem. Reload the page and try again!',
+											code : RC.ERR_UNKNOWN,
+										});
+									});
+								}
+							}
+						}
+						// Continue countdowm
+						else {
+							countDownElement.innerHTML = '<h1>'+(minutes>9?minutes:'0'+minutes) + ' : ' + (seconds > 9?seconds:'0'+seconds)+'</h1>';
+							// Update the count if necessary
+							if ( me.adamSpotCount < currentAdamSpot ) {
+								timesum -= ((currentAdamSpot-me.adamSpotCount) * (5*60*1000));
+							}
+							
+							// Update Adam current spot
+							currentAdamSpot = me.adamSpotCount;
+						}
+					}, 1000/*One second*/);
 				}, ErrorCatch);
 			}, ErrorCatch);
 		}
@@ -110,8 +245,10 @@ ClientAvatar.prototype.registerUIEvents = function () {
 	// EVE EVENTS ------------------------------------------------------------------------
 	Eve.hover (function (e) {
 		$(this).addClass ('avatarMouseOverEvent');
+		$(this).popover ('show');
 	}, /*OUT*/function (e) {
 		$(this).removeClass ('avatarMouseOverEvent');
+		$(this).popover ('hide');
 	});
 	
 	// Click in the Avatar
@@ -123,18 +260,92 @@ ClientAvatar.prototype.registerUIEvents = function () {
 		 * Now it's time to trigger the event for when
 		 * a spot is available 
 		 */
-		if (me.eveEventFunction && me.eveSpotCount<=0) me.eveEventFunction ();
+		if (me.eveEventFunction && me.eveSpotCount<=0) {
+			$('#Counter2Avatar').modal('hide');
+			me.eveEventFunction ();
+		}
 		// Puts the counter to actually starts the avatar
 		else if (me.eveEventFunction) {
-			
+			// Adds the user to the queue
+			AjaxCall(NJSCTXROOT+'/queue/add2eve', {}, function (data) {
+				// Now it's time to calculate the amount of time to wait
+				AjaxCall(NJSCTXROOT+'/queue/evelastprc', {}, function (dt) {
+					var nowts = new Date ().getTime ();
+					var currentEveSpot = me.eveSpotCount;
+					var timesum = (me.eveSpotCount * (5*60*1000)) + (new Date().getTime () - dt.ts) + nowts;
+					var timeoutcontrol;
+					var countDownElement = document.getElementById("WaitCounter");
+					
+					// ===================================================================================================
+					// Open the model and register his event =============================================================
+					// ===================================================================================================
+					$('#Counter2Avatar').modal('show');
+					$('#Counter2Avatar').unbind ('hidden.bs.modal');
+					$('#Counter2Avatar').on('hidden.bs.modal', function (e) {
+						if (timeoutcontrol) {
+							clearInterval(timeoutcontrol);
+							timeoutcontrol = undefined;
+							
+							// Must remove him from the queue
+							AjaxCall(NJSCTXROOT+'/queue/evermusr', {}, function (data) {
+								console.warn ('Successfuly removed user from personification Queue');
+							});
+						}
+					});
+					// ===================================================================================================
+					
+					var lastMinute=0;
+					// Process the timeout
+					timeoutcontrol = setInterval(function () {
+						var now = new Date ();
+						var to  = new Date (timesum);
+						var coutdownInfo = countdown (to);
+						var minutes  = coutdownInfo.minutes;
+						var seconds = coutdownInfo.seconds;
+						
+						if ((minutes === 0 && seconds === 0) || now.getTime ()>to.getTime() ) {
+							clearInterval(timeoutcontrol);
+							timeoutcontrol = undefined;
+							// ENTER THE AVATAR!!!!
+							if (me.eveEventFunction) {
+								$('#Counter2Avatar').modal('hide');
+								me.eveEventFunction ();
+							}
+							else {
+								if (timeoutcontrol) {
+									// Must remove him from the queue
+									AjaxCall(NJSCTXROOT+'/queue/evermusr', {}, function (data) {
+										$('#Counter2Avatar').modal('hide');
+										ErrorCatch ({
+											message: 'Impossible to incorporate the Avatar. Internal framework problem. Reload the page and try again!',
+											code : RC.ERR_UNKNOWN,
+										});
+									});
+								}
+							}
+						}
+						// Continue countdowm
+						else {
+							countDownElement.innerHTML = '<h1>'+(minutes>9?minutes:'0'+minutes) + ' : ' + (seconds > 9?seconds:'0'+seconds)+'</h1>';
+							// Update the count if necessary
+							if ( me.eveSpotCount < currentEveSpot ) {
+								timesum -= ((currentEveSpot-me.eveSpotCount) * (5*60*1000));
+							}
+							
+							// Update Adam current spot
+							currentEveSpot = me.eveSpotCount;
+						}
+					}, 1000/*One second*/);
+				}, ErrorCatch);
+			}, ErrorCatch);
 		}
 	});
 	//--------------------------------------------------------------------------------
 };
 
 
-var SPOT_VERIFICATION_SECONDS = 1000;
-var UPDATE_STATUS_VERIFICATION = 1000;
+var SPOT_VERIFICATION_SECONDS = 2000;
+var UPDATE_STATUS_VERIFICATION = 2000;
 /*
  * Monitor Adam Event queue (Spot)
  */

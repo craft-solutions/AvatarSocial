@@ -4,12 +4,13 @@
 jQuery (document).ready (function () {
 	var bootstrapButton = $.fn.button.noConflict(); // return $.fn.button to previously assigned value
 	$.fn.bootstrapBtn = bootstrapButton;            // give $().bootstrapBtn the Bootstrap functionality
-	$(document).off('.data-api');
+//	$(document).off('.data-api');
 	
 	// Main try/catch control
 	try {
 		// Creates the Avatar control class
 		var cliavatar = new ClientAvatar();
+		var control;
 		
 		// Register the events to be called when Adam or Eve are available
 		cliavatar.onAdamSpot(function () { // ADAM
@@ -22,7 +23,7 @@ jQuery (document).ready (function () {
 					var disposeElement = document.getElementById('AvatarSelection');
 					var showElement	   = document.getElementById('YoutubePanel');
 					// Let's destroy this component, and open the video processing monitor
-					var control = new AvatarControl (disposeElement, showElement);
+					control = new AvatarControl (disposeElement, showElement);
 					// Start the control and transition animation
 					control.start(AvatarType.ADAM);
 				}
@@ -38,7 +39,7 @@ jQuery (document).ready (function () {
 					var disposeElement = document.getElementById('AvatarSelection');
 					var showElement	   = document.getElementById('YoutubePanel');
 					// Let's destroy this component, and open the video processing monitor
-					var control = new AvatarControl (disposeElement, showElement);
+					control = new AvatarControl (disposeElement, showElement);
 					// Start the control and transition animation
 					control.start(AvatarType.EVE);
 				}
@@ -52,6 +53,7 @@ jQuery (document).ready (function () {
 		$(window).on ('beforeunload', function(){
 			// Finishs the avatar
 			cliavatar.shutdown();
+			if (control) control.shutdown ();
 			
 			return 'Tem certeza que deseja sair?';
 		});
