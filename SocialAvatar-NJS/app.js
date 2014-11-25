@@ -131,6 +131,11 @@ app.post (NJSCTXROOT+'/partner/login', user.partnerLogin);
 // Avatar processing
 app.post (NJSCTXROOT+'/avatar/actions', avatar.listCharacterInteractions);
 app.post (NJSCTXROOT+'/avatar/idles', avatar.listIdleInteraction);
+app.post (NJSCTXROOT+'/avatar/addcmdprc', avatar.addToCommandProcessor);
+app.post (NJSCTXROOT+'/avatar/querycmdprc', avatar.queryForCommandResults);
+app.post (NJSCTXROOT+'/avatar/addcmdcli', avatar.addToCommandResponse);
+app.post (NJSCTXROOT+'/avatar/querycmdcli', avatar.queryFromCommandProcessor);
+
 
 
 

@@ -2,12 +2,14 @@ var PHelper = require ('../ProtocolHelper');
 var nmi = require ('../NMISecurity').newInstance ();
 var _ = require('underscore');
 var help = require ('../Helper');
-var AWSh = require ('../AWSHelper');
 
 /*
  * POST REQUESTS
  */
-module.exports.postToCommandQueue = function (req, res) {
+/*
+ * @deprecated use addToCommandProcessor
+ */
+/*module.exports.postToCommandQueue = function (req, res) {
 	try {
 		// Strips the message parts
 		var header = PHelper.stripRequestHeader (req);
@@ -31,6 +33,160 @@ module.exports.postToCommandQueue = function (req, res) {
 			else {
 				// Writes the response
 				PHelper.WriteSuccessResponse (res, {'CommandPrcId': msgId,});
+			}
+		});
+	}
+	catch (e) {
+		PHelper.ThrowException (res, e);
+	}
+};*/
+
+/*
+ * The avatar processor request to get commands from the client
+ */
+module.exports.queryFromCommandProcessor = function (req, res) {
+	try {
+		// Strips the message parts
+		var header = PHelper.stripRequestHeader (req);
+		var body   = PHelper.stripRequestBody   (req);
+				
+		// The first it needs to do is verify the NMI signature of the message
+		nmi.authorize (header.nmitoken);
+		
+		if (isDebugEnable) {
+			console.log ('Received message. DATA (header|body (optional)):');
+			console.log (header);
+			console.log (body);
+		}
+		
+		// Post the request to the INPUT comment Q
+		AWSh.receiveFromCmdQ (true/*INPUT QUEUE*/, function (err, result) {
+			if (err) {
+				PHelper.ThrowException (res, err);
+			}
+			// Okay
+			else {
+				if (result) {
+					// Writes the response
+					PHelper.WriteSuccessResponse (res, result);
+				}
+				// Okay, no response yet
+				else {
+					// Writes the response
+					PHelper.WriteSuccessResponse (res, {noresponse: true});
+				}
+			}
+		});
+	}
+	catch (e) {
+		PHelper.ThrowException (res, e);
+	}
+};
+module.exports.addToCommandResponse = function (req, res) {
+	try {
+		// Strips the message parts
+		var header = PHelper.stripRequestHeader (req);
+		var body   = PHelper.stripRequestBody   (req);
+				
+		// The first it needs to do is verify the NMI signature of the message
+		nmi.authorize (header.nmitoken);
+		
+		if (isDebugEnable) {
+			console.log ('Received message. DATA (header|body (optional)):');
+			console.log (header);
+			console.log (body);
+		}
+		
+		// Post the request to the INPUT comment Q
+		AWSh.addRequestToCommandQ (body, false/*OUTPUT QUEUE*/, function (err, result) {
+			if (err) {
+				PHelper.ThrowException (res, err);
+			}
+			// Okay
+			else {
+				// Writes the response
+				PHelper.WriteSuccessResponse (res, result);
+			}
+		});
+	}
+	catch (e) {
+		PHelper.ThrowException (res, e);
+	}
+};
+
+/*
+ * Adds the command request to be processed
+ */
+module.exports.addToCommandProcessor = function (req, res) {
+	try {
+		// Strips the message parts
+		var header = PHelper.stripRequestHeader (req);
+		var body   = PHelper.stripRequestBody   (req);
+				
+		// The first it needs to do is verify the NMI signature of the message
+		nmi.authorize (header.nmitoken);
+		
+		if (isDebugEnable) {
+			console.log ('Received message. DATA (header|body (optional)):');
+			console.log (header);
+			console.log (body);
+		}
+		
+		// Adds the user and partner to the session
+		_.extend (body, {
+			FBUser: req.session.user,
+			Partner: req.session.partner,
+		});
+		// Post the request to the INPUT comment Q
+		AWSh.addRequestToCommandQ (body, true/*INPUT QUEUE*/, function (err, result) {
+			if (err) {
+				PHelper.ThrowException (res, err);
+			}
+			// Okay
+			else {
+				// Writes the response
+				PHelper.WriteSuccessResponse (res, result);
+			}
+		});
+	}
+	catch (e) {
+		PHelper.ThrowException (res, e);
+	}
+};
+/*
+ * Query the SQS server for responses from the Avatar command processor
+ */
+module.exports.queryForCommandResults = function (req, res) {
+	try {
+		// Strips the message parts
+		var header = PHelper.stripRequestHeader (req);
+		var body   = PHelper.stripRequestBody   (req);
+				
+		// The first it needs to do is verify the NMI signature of the message
+		nmi.authorize (header.nmitoken);
+		
+		if (isDebugEnable) {
+			console.log ('Received message. DATA (header|body (optional)):');
+			console.log (header);
+			console.log (body);
+		}
+		
+		// Post the request to the INPUT comment Q
+		AWSh.receiveFromCmdQ (false/*OUTPUT QUEUE*/, function (err, result) {
+			if (err) {
+				PHelper.ThrowException (res, err);
+			}
+			// Okay
+			else {
+				if (result) {
+					// Writes the response
+					PHelper.WriteSuccessResponse (res, result);
+				}
+				// Okay, no response yet
+				else {
+					// Writes the response
+					PHelper.WriteSuccessResponse (res, {noresponse: true});
+				}
 			}
 		});
 	}

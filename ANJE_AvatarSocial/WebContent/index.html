@@ -42,9 +42,12 @@
            		Avatar, ou até enviar um som para ser tocado pelo seu avatar. Para isso, escreva a sua mensagem e selecione a ação (ou som)
            		que deseja enviar.
            		<br/><br/>
+           		<h5 id="AvatarMsgInputProblem" style="color: red; display: none;font-weight: bolder;width: 98%; text-align: center;">
+           			É necessário enviar uma mensagem junto com a Ação do Avatar.
+           		</h5><br/>
            		<form class="form-inline" role="form">
            			<div class="form-group">
-						<input id="AvatarMsg" type="text" style="width: 400px;" maxlength="70" class="form-control" placeholder="Digite a Mensagem para o Avatar!"></input>
+						<input id="AvatarMsgInput" type="text" style="width: 400px;" maxlength="140" class="form-control" placeholder="Digite a Mensagem para o Avatar!"></input>
 					</div>
 					<div class="form-group">
 						<div class="btn-group dropup">
@@ -74,7 +77,7 @@
         							data-trigger="focus" 
         							data-content="Clique para incorporá-lo!" title="ADAM">
         			<div id="AdamCountdown" class="countdown">
-        				<h6 id="AdamSpotInfo" style="font-size: 11px; font-weight: bold;"></h6>
+        				<h6 id="AdamSpotInfo" style="font-size: 12px; font-weight: bold;"></h6>
         			</div>
         		</div>
         		<div id="EveSpot" class="btn btn-lg avatar-evespot" 
@@ -83,7 +86,7 @@
         							data-trigger="focus" 
         							data-content="Clique para incorporá-la!" title="EVE">
         			<div id="EveCountdown" class="countdown">
-        				<h6 id="EveSpotInfo"></h6>
+        				<h6 id="EveSpotInfo" style="font-size: 12px; font-weight: bold;"></h6>
         			</div>
         		</div>
         		<div id="Clear"></div>
@@ -93,7 +96,7 @@
             <p class="isPanel">
             	Comece por selecionar o Avatar que deseja incorporar. Apenas uma pessoa pode impersonificar 
             	o Avatar de cada vez, e assim se o seu Avatar estiver ocupado, ainda pode entrar na fila de espera.
-             	Faça a sua escolha, e clique no Avatar para incorporá-lo.<br/><br/>
+             	Faça a sua escolha, e clique no Avatar para incorporá-lo.<br/>
             	<button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#PartnerLogin" id="LoginPartnerBtn">
             		<b>Parceiro, Clique aqui!</b>
             	</button>
@@ -109,13 +112,11 @@
 	<div class="modal-dialog">
 		<div class="modal-content">
 			<div class="modal-header">
-        		<h4 class="modal-title">Processando o seu pedido...</h4>
+        		<h4 class="modal-title" id="TextProgressBar">Processando o seu pedido...</h4>
       		</div>
       		<div class="modal-body">
       			<div class="progress">
-					<div class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%;">
-    					<span class="sr-only">60% Complete</span>
-  					</div>
+					<div class="progress-bar progress-bar-warning progress-bar-striped" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
 				</div>
 			</div>
     	</div><!-- /.modal-content -->

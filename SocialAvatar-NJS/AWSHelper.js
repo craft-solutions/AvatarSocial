@@ -143,7 +143,7 @@ AWSHelper.prototype.receiveRequestFromQ = function (queueUrl, cb, removeIf, bcou
 						var currmsg = data.Messages [n];
 						
 						if (removeIf) {
-							me.removeMsgFromQ(currmsg, queueUrl);
+							me.removeMsgFromQ(currmsg.ReceiptHandle, queueUrl);
 						}
 						
 						try {
@@ -168,7 +168,7 @@ AWSHelper.prototype.receiveRequestFromQ = function (queueUrl, cb, removeIf, bcou
 					var message = data.Messages [0];
 					
 					if (removeIf) {
-						me.removeMsgFromQ(message, queueUrl);
+						me.removeMsgFromQ(message.ReceiptHandle, queueUrl);
 					}
 					
 					try {
@@ -365,14 +365,17 @@ var COMMAND_OUTPUT_Q = 'https://sqs.eu-west-1.amazonaws.com/539168730222/AVATAR_
 /*
  * Add a new request to the COMMAND Queue
  */
-AWSHelper.prototype.addRequestToCmdQ = function (obj, inputOutput, cb, uniid) {
+AWSHelper.prototype.addRequestToCommandQ = function (obj, inputOutput, cb, uniid) {
 	var me = this;
 
 	var newobj = {
 		uniqueId : uniid || uuid.v4 (),
 	};
 	
-	_.extend (newobj, obj);
+	if (!obj.uniqueId) {
+		_.extend (newobj, obj);
+	}
+	
 	// Define the parameters for aws
 	var params = {
 		MessageBody: JSON.stringify(newobj),
@@ -403,11 +406,11 @@ AWSHelper.prototype.addRequestToCmdQ = function (obj, inputOutput, cb, uniid) {
 /*
  * Process a response from the queue
  */
-AWSHelper.prototype.receiveFromCmdQ = function (uniid, inputOutput, cb, bcount) {
+AWSHelper.prototype.receiveFromCmdQ = function (inputOutput, cb, bcount, uniid) {
 	var me = this;
 	var batchCount = bcount || 5;
 	
-	
+	var queueUrl = inputOutput ? COMMAND_INPUT_Q : COMMAND_OUTPUT_Q;
 	// Define the receive AWS parameters
 	var params = {
 		QueueUrl: queueUrl,
@@ -436,7 +439,7 @@ AWSHelper.prototype.receiveFromCmdQ = function (uniid, inputOutput, cb, bcount) 
 			if (data && data.Messages && data.Messages.length > 0 ) {
 				var queueUrl = inputOutput ? COMMAND_INPUT_Q : COMMAND_OUTPUT_Q;
 				
-				if (bcount && uniid) {
+				if (uniid) {
 					// Iter all the messages before returning
 					var n=0, commandQData;
 					for (;n<data.Messages.length;n++) {
@@ -448,7 +451,7 @@ AWSHelper.prototype.receiveFromCmdQ = function (uniid, inputOutput, cb, bcount) 
 							commandQData = cmd;
 							
 							// Rmoves the queue
-							me.removeMsgFromQ(currmsg, queueUrl);
+							me.removeMsgFromQ(currmsg.ReceiptHandle, queueUrl);
 							
 							break;
 						}
@@ -461,11 +464,11 @@ AWSHelper.prototype.receiveFromCmdQ = function (uniid, inputOutput, cb, bcount) 
 				// Just get the first message that came
 				else {
 					var currmsg = data.Messages [0];
-					var cmd = currmsg.Body;
+					var cmd = JSON.parse (currmsg.Body);
 					// Just return...
 					if (cb) {
 						// Rmoves the queue
-						me.removeMsgFromQ(currmsg, queueUrl);
+						me.removeMsgFromQ(currmsg.ReceiptHandle, queueUrl);
 						cb (null, cmd);
 					}
 				}

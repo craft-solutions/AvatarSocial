@@ -119,29 +119,119 @@ AvatarControl.prototype.start = function (type) {
  */
 AvatarControl.prototype.processAction = function ($a, action) {
 	var me = this;
-	var $msg = $('#AvatarMsg');
+	var $msg = $('#AvatarMsgInput');
 	var textVal = $msg.val ();
 	
 	if ( textVal === '' ) {
-		$msg.addClass ('danger');
+		$('#AvatarMsgInputProblem').fadeIn ('slow');
 	}
 	else {
-		$msg.removeClass ('danger');
+		$('#AvatarMsgInputProblem').fadeOut ('slow');
 		
+		// Creates the request
+		var request = {
+			Message: textVal,
+			Action: action,
+		};
 		
+		// Process the action in the server
+		me.processIntoServer($a, request, action.name);
 	}
-		
-	// TODO: Implement
-	console.log ('CLICKED ACTION NAMED: %s', action.name);
-	$('#StatusBar').modal ('show');
 };
 /*
  * Process sound in the server
  */
 AvatarControl.prototype.processSound = function ($a, sound) {
 	var me = this;
-	// TODO: Implement
-	console.log ('CLICKED SOUND NAMED: %s', sound.name);
+	var $msg = $('#AvatarMsgInput');
+	var textVal = $msg.val ();
+	
+	if ( textVal === '' ) {
+		$('#AvatarMsgInputProblem').fadeIn ('slow');
+	}
+	else {
+		$('#AvatarMsgInputProblem').fadeOut ('slow');
+		// Creates the request
+		var request = {
+			Message: textVal,
+			Sound: sound,
+		};
+		
+		// Process the sound in the server
+		me.processIntoServer($a, request, sound.name);
+	}
+};
+
+/*
+ * Process the request in the server
+ */
+AvatarControl.prototype.processIntoServer = function ($a, request, name) {
+	var me = this;
+	var progressBarControl, endProgress = false, counter=0;
+	// Sends the message
+	AjaxCall(NJSCTXROOT+'/avatar/addcmdprc', request, function (data) {
+		var verificationAvatarCmdControl;
+		// Must verify if the Avatar executed with sucess the message
+		verificationAvatarCmdControl = setInterval(function () {
+			if (endProgress || me.ControlFlag) {
+				clearInterval(verificationAvatarCmdControl);
+			}
+			else {
+				// Verifies a response from the server
+				AjaxCall(NJSCTXROOT+'/avatar/querycmdprc', {}, function (data) {
+					// Verifies the response
+					if (!data.noresponse) {
+						endProgress = true;
+					}
+				}, function (e) {
+					endProgress = true;
+					// Throw the error anyway
+					ErrorCatch(e);
+				});
+			}
+		}, 1000);
+	}, function (e) { //Must stops execution if an error occurs!
+		endProgress = true;
+		ErrorCatch(e);
+	}, /*Before send!*/function () {
+		$('#StatusBar').modal ('show');
+	});
+	
+	var $progressBar = $('.progress-bar-striped');
+	var maxWaitTS = new Date ().getTime () + 90*1000; /*Waits only a minute and a half*/
+	// Starts the counter that controls the progress bar
+	progressBarControl = setInterval(function () {
+		if (endProgress || me.ControlFlag) {
+			clearInterval(progressBarControl);
+			
+			if (!me.ControlFlag) {
+				$('#TextProgressBar').get (0).innerHTML = 'O Avatar executou sua Ação com sucesso: '+name;
+				$progressBar.css('width', '100%').attr ('aria-valuenow', 100);
+				setTimeout(function () {
+					$('#StatusBar').modal ('hide');
+					
+					// TODO: Implement
+				}, 2000);
+			}
+			else {
+				$('#StatusBar').modal ('hide');
+			}
+		}
+		else {
+			var nowts = new Date ().getTime ();
+			if ( nowts > maxWaitTS ) {// okay, it's to much, it's time to free resources
+				endProgress = true;
+			}
+			else if (counter <=100) {
+				counter+=2;
+				// Updates the status bar in the view
+				$progressBar.css('width', counter+'%').attr ('aria-valuenow', counter);
+			}
+			else {
+				counter = 0;
+			}
+		}
+	}, 100);
 };
 
 /*
@@ -185,6 +275,15 @@ AvatarControl.prototype.startUsageControl = function () {
 			// Okay, should end the execution
 			else {
 				me.shutdown();
+				
+				// Delay the reload... creates a clean effect with the count down!
+				setTimeout(function () {
+					// Remove the binds and reload the page
+					$(window).off ('beforeunload');
+					$(window).off ('unload');
+					// Reloads the page
+					window.location.reload();
+				}, 500);
 			}
 		}
 	}, 1000);
