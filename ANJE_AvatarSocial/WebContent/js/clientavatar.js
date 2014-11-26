@@ -157,6 +157,9 @@ ClientAvatar.prototype.registerUIEvents = function () {
 		e.stopPropagation ();
 		e.preventDefault ();
 		
+		// Just select the Avatar
+		currentUsedAvatar = AvatarType.ADAM;
+		
 		/*
 		 * Now it's time to trigger the event for when
 		 * a spot is available 
@@ -255,6 +258,9 @@ ClientAvatar.prototype.registerUIEvents = function () {
 	Eve.click (function (e) {
 		e.stopPropagation ();
 		e.preventDefault ();
+		
+		// Just select the Avatar
+		currentUsedAvatar = AvatarType.EVE;
 		
 		/*
 		 * Now it's time to trigger the event for when

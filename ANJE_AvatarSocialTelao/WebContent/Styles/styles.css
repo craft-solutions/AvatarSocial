@@ -76,6 +76,6 @@ p{ line-height: 1.1em;}
 }
 
 
-.Balao { padding:20px 28px 70px; background:url(../images/balao.png) no-repeat; margin:0; z-index:20;}
+.Balao { padding:20px 28px 70px; background:url(../images/balao.png) no-repeat; margin:0; z-index:20;display: none}
 
 .Balao p { margin:0;}

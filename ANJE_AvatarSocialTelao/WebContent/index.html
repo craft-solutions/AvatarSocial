@@ -6,7 +6,6 @@
 
 
 <link rel="stylesheet" type="text/css" href="Styles/styles.css">
-
 </head>
 
 <body>
@@ -33,15 +32,13 @@
         <div class="Avatar Esquerda">
         
         	<div class="BoxIdentificacao">
-            	<img src="images/FB_imgProfile.png" width="51" height="51" alt=""/>
-                <p>Fulano Ciclano</p>
+            	<img src="images/FB_imgProfile.png" width="51" height="51" alt="" id="UserAdamImg"/>
+                <p id="UserAdamName"></p>
             </div>
             
-            <div class="SeqPNG"><img src="images/boneco_avatar.png" width="315" height="500" alt=""/></div>
+            <div class="SeqPNG"><img src="images/boneco_avatar.png" width="315" height="500" alt="" id="AdamToy"/></div>
             
-            <div class="Balao">
-            	<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean eros neque, tincidunt nec ligula nec, accumsan fringilla. nibh. Maecenas in mi mauris.</p>
-            </div>
+            <div class="Balao" id="BalaoAdam"></div>
         
         
         </div>
@@ -49,15 +46,13 @@
         <div class="Avatar Direita">
         
         	<div class="BoxIdentificacao">
-            	<img src="images/FB_imgProfile.png" width="51" height="51" alt=""/>
-                <p>Fulano Ciclano</p>
+            	<img src="images/FB_imgProfile.png" width="51" height="51" alt="" id="UserEveImg"/>
+                <p id="UserEveName"></p>
             </div>
             
-            <div class="SeqPNG"><img src="images/boneco_avatar.png" width="315" height="500" alt=""/></div>
+            <div class="SeqPNG"><img src="images/boneco_avatar.png" width="315" height="500" alt="" id="EveToy" /></div>
             
-            <div class="Balao">
-            	<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean eros neque, tincidunt nec ligula nec, accumsan fringilla. nibh. </p>
-            </div>
+            <div class="Balao" id="BalaoEve"></div>
         
         </div>
     </div>
@@ -68,10 +63,15 @@
 <script src="//code.jquery.com/jquery-2.1.1.min.js"></script>
 <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
 <script src="http://underscorejs.org/underscore-min.js"></script>
+<script type="text/javascript" src="js/howler.js-master/howler.min.js"></script>
+
 
 <!-- Common libraries -->
-<script type="text/javascript" src="js/countdown.min.js"></script>
 <script type="text/javascript" src="js/global.js"></script>
+<script type="text/javascript" src="js/animation.js"></script>
+<script type="text/javascript" src="js/avatarprocessor.js"></script>
+<script type="text/javascript" src="js/idlecontroller.js"></script>
+<script type="text/javascript" src="js/commandcontroller.js"></script>
 <script type="text/javascript" src="js/main.js"></script>
 
 </body>

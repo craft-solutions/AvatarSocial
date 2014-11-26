@@ -9,6 +9,8 @@ var GET = 'GET';
 
 var AJAX_DEBUG = IS_DEBUG && false;
 
+var currentUsedAvatar = 0;
+
 /*
  * Load control class
  */

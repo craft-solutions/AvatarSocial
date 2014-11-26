@@ -66,6 +66,9 @@ AvatarControl.prototype.animateTransition = function (cb) {
  */
 AvatarControl.prototype.start = function (type) {
 	var me = this;
+	
+	// Saves globaly the Avatar type
+	currentUsedAvatar = type;
 	// Animate the transition
 	me.animateTransition(function () {
 		// Defines the usage time
@@ -132,6 +135,7 @@ AvatarControl.prototype.processAction = function ($a, action) {
 		var request = {
 			Message: textVal,
 			Action: action,
+			AvatarType: currentUsedAvatar,
 		};
 		
 		// Process the action in the server
@@ -155,6 +159,7 @@ AvatarControl.prototype.processSound = function ($a, sound) {
 		var request = {
 			Message: textVal,
 			Sound: sound,
+			AvatarType: currentUsedAvatar,
 		};
 		
 		// Process the sound in the server
@@ -209,7 +214,7 @@ AvatarControl.prototype.processIntoServer = function ($a, request, name) {
 				$progressBar.css('width', '100%').attr ('aria-valuenow', 100);
 				setTimeout(function () {
 					$('#StatusBar').modal ('hide');
-					
+//					$('#TextProgressBar').get (0).innerHTML = lastProcessingMsg;
 					// TODO: Implement
 				}, 2000);
 			}
@@ -224,6 +229,7 @@ AvatarControl.prototype.processIntoServer = function ($a, request, name) {
 			}
 			else if (counter <=100) {
 				counter+=2;
+				$('#TextProgressBar').get (0).innerHTML = "A enviar instruções ao Avatar...";
 				// Updates the status bar in the view
 				$progressBar.css('width', counter+'%').attr ('aria-valuenow', counter);
 			}
@@ -276,14 +282,27 @@ AvatarControl.prototype.startUsageControl = function () {
 			else {
 				me.shutdown();
 				
-				// Delay the reload... creates a clean effect with the count down!
-				setTimeout(function () {
-					// Remove the binds and reload the page
-					$(window).off ('beforeunload');
-					$(window).off ('unload');
-					// Reloads the page
-					window.location.reload();
-				}, 500);
+				// The function finishes everything
+				var finishOff = function () {
+					// Delay the reload... creates a clean effect with the count down!
+					setTimeout(function () {
+						// Remove the binds and reload the page
+						$(window).off ('beforeunload');
+						$(window).off ('unload');
+						// Reloads the page
+						window.location.reload();
+					}, 5);
+				};
+				// Adds a end session to the queue
+				AjaxCall(NJSCTXROOT+'/avatar/addcmdprc', {
+					EndUser: true,
+					AvatarType: currentUsedAvatar, 
+				}, function (data) {
+					finishOff ();
+				}, function (e) {
+					console.error (e);
+					finishOff();
+				});
 			}
 		}
 	}, 1000);

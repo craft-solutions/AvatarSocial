@@ -2,12 +2,26 @@ var usedToken = -17;
 var usedUri;
 var usedMethod;
 var NJSCTXROOT = '/AvatarSocialNJS';
-var IS_DEBUG = false;
+var IS_DEBUG = true;
 
 var POST = 'POST';
 var GET = 'GET';
 
 var AJAX_DEBUG = IS_DEBUG && false;
+
+/*
+ * Avatar enumeration type
+ */
+var AvatarType = {
+	ADAM: 1,
+	EVE: 2,
+};
+
+/*
+ * Processing control
+ */
+IS_PROCESSING_ADAM = false;
+IS_PROCESSING_EVE = false;
 
 /*
  * Load control class
@@ -98,6 +112,66 @@ var AjaxCall = function (touri, obj, cbSuccess, cbError, cbBeforeSend, cbAfterSe
 		},
 	});
 };
+
+/*
+ * Launch in full screen
+ */
+function launchIntoFullscreen(element) {
+	if(element.requestFullscreen) {
+		element.requestFullscreen();
+	} 
+	else if(element.mozRequestFullScreen) {
+		element.mozRequestFullScreen();
+	} 
+	else if(element.webkitRequestFullscreen) {
+		element.webkitRequestFullscreen();
+	} 
+	else if(element.msRequestFullscreen) {
+		element.msRequestFullscreen();
+	}
+}
+/*
+ * Get out of the fullscreen
+ */
+function exitFullscreen() {
+	if(document.exitFullscreen) {
+		document.exitFullscreen();
+	} 
+	else if(document.mozCancelFullScreen) {
+		document.mozCancelFullScreen();
+	} 
+	else if(document.webkitExitFullscreen) {
+		document.webkitExitFullscreen();
+	}
+}
+
+/*
+ * Limits the size of the string
+ */
+function LimitStringTo (str, maxnum) {
+	if (maxnum < str.length) {
+		maxnum = maxnum - 3;
+		maxnum = maxnum < 0 ? 3 : maxnum;
+		
+		if (str) return str.substring (0, maxnum).concat ("...");
+		else return undefined;
+	}
+	else return str;
+}
+
+/*
+ * Gets the first and last names
+ */
+function GetFirstLastName (fullname) {
+	if (fullname) {
+		var name = fullname.split (' ');
+		if (name.length > 1) {
+			return name [0] + ' ' + name[name.length -1];
+		}
+		else return name;
+	}
+	else return undefined;
+}
 
 /*
  * Creates the CORS request
