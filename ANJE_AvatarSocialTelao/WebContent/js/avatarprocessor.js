@@ -1,6 +1,6 @@
 var defaultAvatarImgSrc = 'images/FB_imgProfile.png';
 
-var DELAY_BACK_TIME = 6000;
+var DELAY_BACK_TIME = 8000;
 
 /*
  * Process all the Avatar actions
@@ -74,7 +74,7 @@ AvatarProcessor.prototype.runAction = function (cmdcontroller, cmdData, cb) {
 						// Verifies if it's sound or a movement
 						if ( cmdData.Action ) { // It's a action movement
 							// Process the action
-							me.processAction(cmdData, $AvatarImg, cb);
+							me.processAction(cmdData, $AvatarImg, cb, isAdam);
 						}
 						else if (cmdData.Sound) { // ..it's a sound action
 							// Process the sound
@@ -124,15 +124,15 @@ AvatarProcessor.prototype.processSound = function (cmdData, cb) {
 		},
 	}).play();
 };
-AvatarProcessor.prototype.processAction = function (cmdData, $AvatarImg, cb) {
+AvatarProcessor.prototype.processAction = function (cmdData, $AvatarImg, cb, isAdam) {
 	var me = this;
 	// Selects the animation type
 	var animtype = cmdData.Partner ? AnimationType.PARTNER : AnimationType.DUMMY;
 	
-	var animation;
+	var animation, avatarTypeLetter = isAdam ? 'A' : 'E';
 	// Before continuing, must first verify if partner exists
 	if ( animtype === AnimationType.PARTNER ) {
-		var testfile = 'Animation/Partners/'+cmd.Partner.userid+'/'+avatarTypeLetter+'/'+cmd.Action.baseMovieDirectory+'/dirping.htm'; 
+		var testfile = 'Animation/Partners/'+cmdData.Partner.userid+'/'+cmdData.Action.baseMovieDirectory+'/'+avatarTypeLetter+'/dirping.htm'; 
 		$.ajax({
 			type: 'HEAD',
 		    url: testfile,
@@ -169,10 +169,10 @@ AvatarProcessor.prototype.processCharacter = function (cmdData, $AvatarImg, $Ava
 		// Sets the name of the user
 		$AvatarName.get (0).innerHTML = firstLastNames;
 		
-//		setTimeout(function () {
-//			$AvatarImg.get (0).src = defaultAvatarImgSrc;
-//			$AvatarName.get (0).innerHTML = '';
-//		}, DELAY_BACK_TIME/*Removes the comment after 4 seconds*/);
+		setTimeout(function () {
+			$AvatarImg.get (0).src = defaultAvatarImgSrc;
+			$AvatarName.get (0).innerHTML = '';
+		}, DELAY_BACK_TIME/*Removes the comment after 4 seconds*/);
 	}
 	// Okay, no user login
 	else return;
@@ -182,18 +182,26 @@ AvatarProcessor.prototype.processCharacter = function (cmdData, $AvatarImg, $Ava
  */
 AvatarProcessor.prototype.showMessageBox = function (cmdData, $Avatar) {
 	var me = this;
+	var badwords = /(bosta|carago|merda|pau|puta|bunda|caralho|caralhão|caragão|caralhinho|caraguinho|putinha|putona|merdona|merdinha|buceta|bucetinha|xoxota|bucetona|xoxotona|penis|ereção)+/i;
+	var msg;
 	
-	$Avatar.get (0).innerHTML = 
-		cmdData.Partner ? '<b>'+cmdData.Partner.name+'</b>: '+LimitStringTo(cmdData.Message, 120)
-						: LimitStringTo(cmdData.Message, 120);
+	if (cmdData.Message.match(badwords)) {
+		msg = 'XXX !!!';
+	}
+	// Okay, bad word
+	else {
+		msg = cmdData.Partner ? '<b>'+cmdData.Partner.name+'</b>: '+LimitStringTo(cmdData.Message, 120)
+				  			  : LimitStringTo(cmdData.Message, 120);
+	}
+	
+	$Avatar.get (0).innerHTML = msg;
 	// Shows
 	$Avatar.fadeIn ('slow', function () {
 		setTimeout(function () {
 			$Avatar.fadeOut ('slow');
 		}, DELAY_BACK_TIME/*Removes the comment after 4 seconds*/);
-	})
-	
-}
+	});
+};
 
 
 

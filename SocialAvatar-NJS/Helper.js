@@ -83,6 +83,43 @@ module.exports = {
 	},
 	
 	/*
+	 * Gets twitter configuration
+	 */
+	GetTwitterConfig : function () {
+		var avatarHome = getAvatarBaseDir ();
+		var interactFile = avatarHome + '/tw-connection.json';
+		
+		if (!fs.exists) {
+			if (cb) cb ({
+				FaultMessage : 'No Twitter information found in the system',
+				FaultCode  	 : RC.TWITTER_ERROR,
+			});
+		}
+		else {
+			var config = fse.readJsonSync(interactFile, {throws: true});
+			return config;
+		}
+	},
+	/*
+	 * Get the used hashs
+	 */
+	GetTWUsedHashs : function () {
+		var avatarHome = getAvatarBaseDir ();
+		var interactFile = avatarHome + '/tw-hashs.json';
+		
+		if (!fs.exists) {
+			if (cb) cb ({
+				FaultMessage : 'No Twitter hash information found in the system',
+				FaultCode  	 : RC.TWITTER_ERROR,
+			});
+		}
+		else {
+			var config = fse.readJsonSync(interactFile, {throws: true});
+			return config;
+		}
+	},
+	
+	/*
 	 * Gets the partner configuration file
 	 */
 	LoadPartnerDB : function (cb) {

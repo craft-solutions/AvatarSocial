@@ -42,5 +42,9 @@ module.exports = {
 	 * Partner error
 	 */
 	PARTNER_ERROR : 5009,
+	/*
+	 * Twitter error
+	 */
+	TWITTER_ERROR : 5010,
 };
 

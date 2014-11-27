@@ -40,15 +40,16 @@ function AnimationControl (cmd, $avatarImg, animType, cb, framespersec) {
 	// Selects the right processor for each animation type
 	switch (me.animationType) {
 		case AnimationType.IDLE: {
-			directoryToLoadAnimation = 'Animation/IDLE/'+avatarTypeLetter+'/'+cmd.NextAnimation;
+			directoryToLoadAnimation = 'Animation/Idle/'+avatarTypeLetter+'/'+cmd.NextAnimation;
 			break;
 		}
 		case AnimationType.SOCIAL_NETWORK: {
+			directoryToLoadAnimation = 'Animation/SN/'+avatarTypeLetter+'/'+cmd.SNType;
 			break;
 		}
 		case AnimationType.PARTNER: {
 			// selects the main directory
-			directoryToLoadAnimation = 'Animation/Partners/'+cmd.Partner.userid+'/'+avatarTypeLetter+'/'+cmd.Action.baseMovieDirectory;
+			directoryToLoadAnimation = 'Animation/Partners/'+cmd.Partner.userid+'/'+cmd.Action.baseMovieDirectory+'/'+avatarTypeLetter;
 			break;
 		}
 		case AnimationType.DUMMY: {

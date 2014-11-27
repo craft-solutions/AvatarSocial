@@ -11,6 +11,7 @@ var express = require('express')
   , user = require('./routes/user')
   , avatar = require ('./routes/avatar')
   , fbflow 	= require ('./routes/fbflow')
+  , twitter = require ('./routes/twflow')
   , queueflow = require ('./routes/queuecontrol')
   , http = require('http')
   , path = require('path')
@@ -135,6 +136,8 @@ app.post (NJSCTXROOT+'/avatar/addcmdprc', avatar.addToCommandProcessor);
 app.post (NJSCTXROOT+'/avatar/querycmdprc', avatar.queryForCommandResults);
 app.post (NJSCTXROOT+'/avatar/addcmdcli', avatar.addToCommandResponse);
 app.post (NJSCTXROOT+'/avatar/querycmdcli', avatar.queryFromCommandProcessor);
+// Twitter processing
+app.post (NJSCTXROOT+'/twitter/get', twitter.getTweets);
 
 
 
