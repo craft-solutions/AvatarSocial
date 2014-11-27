@@ -25,6 +25,17 @@ var LoadControl = {
  */
 var ErrorCatch = function (e) {
 	console.error (e);
+	
+	if (e.code && e.code === 5008 /*facebook login*/) {
+		$(window).off ('beforeunload');
+		$(window).off ('unload');
+		
+		window.location.href = NJSCTXROOT+'/auth/facebook';
+	}
+	else {
+		// Just show an error message
+		
+	}
 	// TODO: Implement!
 };
 

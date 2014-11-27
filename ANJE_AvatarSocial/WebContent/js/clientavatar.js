@@ -407,10 +407,10 @@ ClientAvatar.prototype.monitorEveSpot = function () {
 	}, SPOT_VERIFICATION_SECONDS);
 };
 
-var adamHaveSpotSrc = "img/avatar_1_test.png";
-var adamDontHaveSpotSrc = "img/avatar_2_test.png";
-var eveHaveSpotSrc = "img/avatar_1_test.png";
-var eveDontHaveSpotSrc = "img/avatar_2_test.png";
+var adamHaveSpotSrc = "img/adam_select.png";
+var adamDontHaveSpotSrc = "img/adam_selected.png";
+var eveHaveSpotSrc = "img/eve_select.png";
+var eveDontHaveSpotSrc = "img/eve_selected.png";
 /*
  * Start the Avatar Spot control
  */

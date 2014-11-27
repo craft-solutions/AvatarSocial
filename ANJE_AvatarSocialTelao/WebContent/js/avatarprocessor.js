@@ -19,11 +19,14 @@ function AvatarProcessor (procref, cmd) {
 /*
  * Run the given action
  */
-AvatarProcessor.prototype.runAction = function (cmdcontroller, cmdData) {
+AvatarProcessor.prototype.runAction = function (cmdcontroller, cmdData, cb) {
 	var me = this;
 	var $AvatarCommentBox, $UserImg, $UserName, $AvatarImg;
 	var isAdam = cmdData.AvatarType === AvatarType.ADAM;
 	var isEve  = cmdData.AvatarType === AvatarType.EVE;
+	
+	// Sets the execution to prevent IDLE requests
+	CAN_IDLE_CONTROL = !CAN_IDLE_CONTROL;
 	
 	// First it does, is separate the avatar type: Adam or Eve
 	if ( isAdam ) { // Adam
@@ -71,11 +74,11 @@ AvatarProcessor.prototype.runAction = function (cmdcontroller, cmdData) {
 						// Verifies if it's sound or a movement
 						if ( cmdData.Action ) { // It's a action movement
 							// Process the action
-							me.processAction(cmdData, $AvatarImg);
+							me.processAction(cmdData, $AvatarImg, cb);
 						}
 						else if (cmdData.Sound) { // ..it's a sound action
 							// Process the sound
-							me.processSound(cmdData);
+							me.processSound(cmdData, cb);
 						}
 					}
 					finally {
@@ -111,7 +114,12 @@ AvatarProcessor.prototype.processSound = function (cmdData, cb) {
 	// Play the sound
 	var sound = new Howl({
 		urls: [uri],
+		volume: 0.4,
 		onend: function() {
+			
+			// Frees the IDLE processing
+			CAN_IDLE_CONTROL = !CAN_IDLE_CONTROL;
+			
 		    if (cb) cb ();
 		},
 	}).play();
@@ -121,8 +129,30 @@ AvatarProcessor.prototype.processAction = function (cmdData, $AvatarImg, cb) {
 	// Selects the animation type
 	var animtype = cmdData.Partner ? AnimationType.PARTNER : AnimationType.DUMMY;
 	
-	// Create the animation
-	var animation = new AnimationControl(cmdData, $AvatarImg, animtype, cb);
+	var animation;
+	// Before continuing, must first verify if partner exists
+	if ( animtype === AnimationType.PARTNER ) {
+		var testfile = 'Animation/Partners/'+cmd.Partner.userid+'/'+avatarTypeLetter+'/'+cmd.Action.baseMovieDirectory+'/dirping.htm'; 
+		$.ajax({
+			type: 'HEAD',
+		    url: testfile,
+		    success: function() {
+		        // Just go around to the animation processing
+				animation = new AnimationControl(cmdData, $AvatarImg, animtype, cb);
+		    },  
+		    error: function() {
+		        // It need to change the animation type - no logo found!
+		    	animtype = AnimationType.DUMMY;
+				// Create the animation
+				animation = new AnimationControl(cmdData, $AvatarImg, animtype, cb);
+		    }
+		});
+	}
+	// Just call the animation
+	else {
+		// Create the animation
+		animation = new AnimationControl(cmdData, $AvatarImg, animtype, cb);
+	}
 };
 
 /*

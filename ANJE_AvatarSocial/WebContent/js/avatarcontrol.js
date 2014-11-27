@@ -40,15 +40,15 @@ AvatarControl.prototype.animateTransition = function (cb) {
 	var youtubePanel = me.dom2show;
 	youtubePanel.style.display = 'none';
 	// Create the Youtube iFrame DOM element
-	var youTubeiFrame = document.createElement('iframe');
-	youTubeiFrame.setAttribute ('width', 705);
-	youTubeiFrame.setAttribute ('height', 325);
-	youTubeiFrame.setAttribute ('src', '//www.youtube.com/embed/IsgTpQAV0PE?autoplay=1&rel=0&amp;controls=0&amp;showinfo=0');
-	youTubeiFrame.setAttribute ('frameborder', 0);
-	youTubeiFrame.setAttribute ('allowfullscreen', 'allowfullscreen');
+//	var youTubeiFrame = document.createElement('iframe');
+//	youTubeiFrame.setAttribute ('width', 705);
+//	youTubeiFrame.setAttribute ('height', 325);
+//	youTubeiFrame.setAttribute ('src', '//www.youtube.com/embed/IsgTpQAV0PE?autoplay=1&rel=0&amp;controls=0&amp;showinfo=0');
+//	youTubeiFrame.setAttribute ('frameborder', 0);
+//	youTubeiFrame.setAttribute ('allowfullscreen', 'allowfullscreen');
 	
 	// Adds the as first child
-	youtubePanel.insertBefore(youTubeiFrame, youtubePanel.childNodes [0]);
+//	youtubePanel.insertBefore(youTubeiFrame, youtubePanel.childNodes [0]);
 	
 	// Closes the selection and opens the Avatars...
 	$(controls).fadeOut ('slow', function () {

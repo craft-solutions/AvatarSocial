@@ -22,52 +22,59 @@
         	<a href="http://craft-solutions.com" target="_blank"><img src="img/logo_craftsolutions.png" width="150" class="ACenter" alt="Craft-Solutions"/></a>
         	<a href="http://feiradoempreendedor.anje.pt" target="_blank"><img src="img/logo_BornGlobal.png" width="150" class="ARight" alt="Anje"/></a>
         </div>
+        
+        <div class="VideoAoVivo">
+		<div class="class="embed-responsive embed-responsive-16by9" id="YoutubePanel">
+            	<iframe src="//www.youtube.com/embed/IsgTpQAV0PE?autoplay=1&cc_load_policy=1&amp;rel=0&amp;controls=0&amp;showinfo=0" frameborder="0" allowfullscreen width="705" height="325"></iframe>
+            	<!-- YOUTUBE PANEL CHANNEL GOES HERE!-->
+			</div>
+        </div>
+
+
         <div class="partner-name">
         	<h3 id="PartnerName"></h3>
         </div>
         <!-- <div class="MoreSpace"></div> -->
         <div id="AvatarInteraction">
             <!-- <div class="Space"></div> -->
-            <div class="btn btn-lg countdown-usage" 
+            <div class="btn btn-lg countdown-usage isPanel" 
 						data-toggle="popover"
      					data-placement="top"
      					data-trigger="focus" 
      					data-content="Tempo máximo de uso do Avatar" style="color: white;"></div>
-            <div class="class="embed-responsive embed-responsive-16by9" id="YoutubePanel">
-            	<!-- YOUTUBE PANEL CHANNEL GOES HERE!-->
-			</div>
 			<!-- CONTROLS -->
-           	<div id="AvatarControls" class="isPanel">
-           		Observe o movimento do Evento no ecrã acima e interaja com os participantes. Você pode mandar mensagens, executar ações no
-           		Avatar, ou até enviar um som para ser tocado pelo seu avatar. Para isso, escreva a sua mensagem e selecione a ação (ou som)
-           		que deseja enviar.
-           		<br/><br/>
-           		<h5 id="AvatarMsgInputProblem" style="color: red; display: none;font-weight: bolder;width: 98%; text-align: center;">
-           			É necessário enviar uma mensagem junto com a Ação do Avatar.
-           		</h5><br/>
-           		<form class="form-inline" role="form">
-           			<div class="form-group">
-						<input id="AvatarMsgInput" type="text" style="width: 400px;" maxlength="140" class="form-control" placeholder="Digite a Mensagem para o Avatar!"></input>
-					</div>
-					<div class="form-group">
-						<div class="btn-group dropup">
-	  						<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-	    						Selecione a Ação <span class="caret"></span>
-	  						</button>
-	  						<!-- POSSIBLE ACTIONS -->
-	  						<ul class="dropdown-menu" role="menu" id="SelectActionList"></ul>
-						</div>
-					</div>
-					<div class="form-group">
-						<div class="btn-group dropup">
-	  						<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-	    						Selecione o Som <span class="caret"></span>
-	  						</button>
-	  						<ul class="dropdown-menu" role="menu" id="SelectSoundList"></ul>
-						</div>
-					</div>
-				</form>
-           	</div>
+          <div id="AvatarControls" class="isPanel">
+            Observe o movimento do Evento no ecrã acima e interaja com os participantes. Você pode mandar mensagens, executar ações no
+            Avatar, ou até enviar um som para ser tocado pelo seu avatar. Para isso, escreva a sua mensagem e selecione a ação (ou som)
+            que deseja enviar.
+            <br/><br/>
+            <h5 id="AvatarMsgInputProblem" style="color: red; display: none;font-weight: bolder;width: 98%; text-align: center;">
+            É necessário enviar uma mensagem junto com a Ação do Avatar.
+            </h5><br/>
+            <form class="form-inline" role="form">
+              <div class="form-group">
+                <input id="AvatarMsgInput" type="text" maxlength="140" class="form-control" placeholder="Digite a Mensagem para o Avatar!"></input>
+              </div>
+              <div id="Clear"></div>
+    					<div class="form-group">
+    						<div class="btn-group dropup">
+    	  						<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+    	    						Selecione a Ação <span class="caret"></span>
+    	  						</button>
+    	  						<!-- POSSIBLE ACTIONS -->
+    	  						<ul class="dropdown-menu" role="menu" id="SelectActionList"></ul>
+    						</div>
+    					</div>
+    					<div class="form-group">
+    						<div class="btn-group dropup">
+    	  						<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+    	    						Selecione o Som <span class="caret"></span>
+    	  						</button>
+    	  						<ul class="dropdown-menu" role="menu" id="SelectSoundList"></ul>
+    						</div>
+    					</div>
+				    </form>
+          </div>
         </div>
         <div class="Title" id="AvatarSelection">
         	<div id="SpotContainer">
@@ -97,11 +104,21 @@
             	Comece por selecionar o Avatar que deseja incorporar. Apenas uma pessoa pode impersonificar 
             	o Avatar de cada vez, e assim se o seu Avatar estiver ocupado, ainda pode entrar na fila de espera.
              	Faça a sua escolha, e clique no Avatar para incorporá-lo.<br/>
-            	<button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#PartnerLogin" id="LoginPartnerBtn">
-            		<b>Parceiro, Clique aqui!</b>
-            	</button>
-			</p>
-        </div>
+                <button type="button" class="btn btn-primary btn-lg Center" data-toggle="modal" data-target="#PartnerLogin" id="LoginPartnerBtn">
+              		<b>Parceiro, Clique aqui!</b>
+              	</button>
+
+
+             <div class="Parceiros isPanel">
+                <p>Parceiros:</p>
+                <hr>
+                <img src="img/logo_anje.png">
+                <img src="img/logo_digitalframe.png">
+                <img src="img/logo_famasete.png">
+                <img src="img/logo_partteam.png">
+             </div>
+			       </p>
+          </div>
     </div>
 </div>
 

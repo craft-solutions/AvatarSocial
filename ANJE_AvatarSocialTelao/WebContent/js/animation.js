@@ -23,7 +23,7 @@ function AnimationControl (cmd, $avatarImg, animType, cb, framespersec) {
 	/*
 	 * Number of frames per second
 	 */
-	me.framesPerSecond = framespersec || 24;
+	me.framesPerSecond = framespersec || 30;
 	
 	/*
 	 * Saves the avatar for running the animation
@@ -40,6 +40,7 @@ function AnimationControl (cmd, $avatarImg, animType, cb, framespersec) {
 	// Selects the right processor for each animation type
 	switch (me.animationType) {
 		case AnimationType.IDLE: {
+			directoryToLoadAnimation = 'Animation/IDLE/'+avatarTypeLetter+'/'+cmd.NextAnimation;
 			break;
 		}
 		case AnimationType.SOCIAL_NETWORK: {
@@ -59,7 +60,7 @@ function AnimationControl (cmd, $avatarImg, animType, cb, framespersec) {
 		}
 	}
 	// Starts the animation
-	me.startAnimationFrom(cmd, directoryToLoadAnimation);
+	me.startAnimationFrom(cmd, directoryToLoadAnimation, cb);
 	
 	return me;
 }
@@ -67,7 +68,7 @@ function AnimationControl (cmd, $avatarImg, animType, cb, framespersec) {
 /*
  * Starts the animation
  */
-AnimationControl.prototype.startAnimationFrom = function (cmd, directory) {
+AnimationControl.prototype.startAnimationFrom = function (cmd, directory, cb) {
 	var me = this;
 	var firstImage;
 	var end = false;
@@ -85,14 +86,14 @@ AnimationControl.prototype.startAnimationFrom = function (cmd, directory) {
 			// Only calls the execution after almoust all are loaded
 			if (n >= cmd.Action.TotalImages) {
 				// Run the animation
-				me.runAnimation();
+				me.runAnimation(cb);
 			}
 		}
 		img.onerror = function() {
 		    // Just end the loop
 			end = true;
 			// Run the animation
-			me.runAnimation();
+			me.runAnimation(cb);
 		}
 		
 		var imageFullPath = directory + '/'+(n<10?'00'+n+'.png':(n<100?'0'+n+'.png':n+'.png'));
@@ -112,7 +113,7 @@ AnimationControl.prototype.startAnimationFrom = function (cmd, directory) {
 /*
  * Run the animation
  */
-AnimationControl.prototype.runAnimation = function () {
+AnimationControl.prototype.runAnimation = function (cb) {
 	var me = this;
 	var delaymillis = Math.floor(1000.0/me.framesPerSecond);
 	
@@ -136,6 +137,8 @@ AnimationControl.prototype.runAnimation = function () {
 			clearInterval(animationController);
 			// Goes back to the first image
 			me.$Avatar.attr ('src', imageBuffer [0].src);
+			
+			if (cb) cb ();
 		}
 	}, delaymillis);
 };
