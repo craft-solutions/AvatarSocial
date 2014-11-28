@@ -38,7 +38,7 @@ module.exports.getTweets = function (req, res) {
 			// Lets do this
 			var hash = h.hashes [0];
 //			h.hashes.forEach (function (hash) {
-				tw.get('search/tweets', { q: ('feiradoempreendedor since:2014-03-01'), count: 100 }, function(err, data, response) {
+				tw.get('search/tweets', { q: ('anje since:2014-09-01 OR feiraempreendedorismo since:2014-09-01 OR feiradoempreendedor2014 since:2014-09-01 OR feiradoempreendedoranje since:2014-09-01 OR bornglobal since:2014-09-01 OR feiradoempreendedorbornglobal since:2014-09-01 OR lojadoempreendedor since:2014-09-01 OR premiodojovemempreendedor since:2014-09-01 OR premiojovemempreendedor'), count: 100 }, function(err, data, response) {
 					if (err) {
 						help.ProcessException(err, res);	
 					}
@@ -48,8 +48,19 @@ module.exports.getTweets = function (req, res) {
 							console.log (data);
 						}
 						
+						var filterData = new Array ();
+						// Filter only Portugal data
+						data.statuses.forEach (function (entry) {
+							// Only saves Portugal entries
+							if ( entry.user.location.indexOf ('Portugal') !== -1 ) {
+								filterData.push (entry);
+							}
+						});
+						
 						// Writes a success response
-						PHelper.WriteSuccessResponse (res, data);
+						PHelper.WriteSuccessResponse (res, {
+							statuses: filterData
+						});
 					}
 				});
 //			});

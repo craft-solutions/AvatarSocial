@@ -15,7 +15,7 @@ function IdleController (idleproc) {
 	/*
 	 * Number of animations
 	 */
-	me.numberOfIDLEAnims = 3;
+	me.numberOfIDLEAnims = 4;
 	/*
 	 * Idle registry function
 	 */
@@ -56,8 +56,9 @@ function IdleController (idleproc) {
 IdleController.prototype.getTotalImagesForId = function (id) {
 	switch (id) {
 		case 1: return 109;
-		case 2: return 109;
-		case 3: return 109;
+		case 2: return 88;
+		case 3: return 150;
+		case 4: return 81;
 	}
 };
 
@@ -121,7 +122,7 @@ IdleController.prototype.processIdle = function () {
 			// Starts the animation
 			animation = new AnimationControl({
 				'NextAnimation': nextAnim, 
-				'Action': {'TotalImages': me.getTotalImagesForId(nextAnim)},
+				'Action': {'TotalImages': 109/*Hardcoded at this point!*/},
 				'AvatarType': AdamEveType,
 				'SNType': 'Twitter',
 			}, $AvatarImg, AnimationType.SOCIAL_NETWORK, me.registeredFunction);
